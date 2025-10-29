@@ -1,0 +1,688 @@
+:root {
+    --negro-espacial: #0D0D0D;
+    --gris-oscuro: #1A1A1A;
+    --blanco: #FDFDFD;
+    --gris-claro: #a2a1a1;
+    --acento-spotify: #1db954;
+
+    --primary-color: var(--blanco);
+    --text-light: var(--blanco);
+    --text-muted: var(--gris-claro);
+    --dark-bg: var(--negro-espacial);
+    --dark-bg-secondary: var(--gris-oscuro);
+    --border-color: rgba(253, 253, 253, 0.2);
+    --card-bg: rgba(26, 26, 26, 0.8);
+
+    --sidebar-width: 240px;
+    --header-height: 80px;
+}
+
+/* ====================================================================
+   Estilos Generales
+==================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Space Mono', monospace;
+    background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-bg-secondary) 100%);
+    color: var(--text-light);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+/* ====================================================================
+   layout y diseño de los sidebars
+==================================================================== */
+
+.sidebar {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--dark-bg-secondary);
+    border-right: 1px solid var(--border-color);
+    z-index: 1000;
+    padding: 1rem 0;
+}
+
+.sidebar-header {
+    padding: 0 1.5rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.brand-text {
+    font-family: 'Anton', sans-serif;
+    font-size: 1.5rem;
+    color: var(--text-light);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.sidebar-nav {
+    padding: 0 1rem;
+}
+
+.nav-section {
+    margin-bottom: 1rem;
+}
+
+.sidebar .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.sidebar .nav-item:hover {
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-item.active {
+    color: var(--text-light);
+    background: rgba(255, 255, 255, 0.15);
+    font-weight: bold;
+}
+
+.sidebar .nav-item i {
+    font-size: 1.25rem;
+    width: 24px;
+    text-align: center;
+}
+
+.hamburger-menu {
+    display: block;
+    position: fixed;
+    top: 1.25rem;
+    left: 1.25rem;
+    z-index: 2000;
+    background: var(--gris-oscuro);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hamburger-line {
+    width: 22px;
+    height: 2px;
+    background: var(--blanco);
+    margin: 5px 0;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 1500;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sidebar-mobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: var(--negro-espacial);
+    z-index: 1600;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(-100%);
+    display: block;
+}
+
+.sidebar-mobile.open {
+    transform: translateX(0);
+}
+
+.sidebar-mobile .sidebar-header {
+    border-bottom-color: rgba(253, 253, 253, 0.1);
+}
+
+.sidebar-mobile-nav .nav-item {
+    justify-content: flex-start;
+}
+
+.main-content {
+    margin-left: 0;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+}
+
+/* ====================================================================
+   header
+==================================================================== */
+.top-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    height: var(--header-height);
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 900;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ====================================================================
+   los botones personalizados
+==================================================================== */
+.btn-custom-outline, .btn-custom-primary {
+    border: 2px solid var(--blanco);
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-custom-outline {
+    background: transparent;
+    color: var(--blanco);
+}
+
+.btn-custom-outline:hover {
+    background: var(--blanco);
+    color: var(--negro-espacial);
+    transform: translateY(-2px);
+}
+
+.btn-custom-primary {
+    background: var(--blanco);
+    color: var(--negro-espacial);
+}
+
+.btn-custom-primary:hover {
+    background: transparent;
+    color: var(--blanco);
+    transform: translateY(-2px);
+}
+
+/* ====================================================================
+       contenido de la página y secciones
+==================================================================== */
+.page-content {
+    padding: 2rem 1rem;
+}
+
+.hero-section {
+    padding: 2rem 0;
+}
+
+.hero-title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(2.5rem, 8vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--blanco);
+    text-transform: uppercase;
+    text-shadow: 0 0 15px rgba(253, 253, 253, 0.2);
+}
+
+.hero-subtitle {
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    color: var(--text-muted);
+    margin-bottom: 3rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.info-box {
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    backdrop-filter: blur(10px);
+}
+
+.info-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    text-transform: uppercase;
+}
+
+.info-text {
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.info-highlight {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* ====================================================================
+   cards personalizados
+==================================================================== */
+.card-custom {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    height: 100%;
+}
+
+.card-custom:hover {
+    transform: translateY(-5px);
+    border-color: var(--blanco);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.card-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--blanco);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 1.5rem;
+    color: var(--negro-espacial);
+    font-weight: bold;
+}
+
+.card-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+}
+
+.card-description {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+/* ====================================================================
+   modales y formularios
+==================================================================== */
+.modal-content {
+    background: var(--dark-bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+}
+
+.modal-header, .modal-footer {
+    border-color: var(--border-color);
+}
+
+.modal-title {
+    font-family: 'Anton', sans-serif;
+    color: var(--primary-color);
+    text-transform: uppercase;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+.form-control {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary-color);
+    color: var(--text-light);
+    box-shadow: 0 0 0 0.2rem rgba(253, 253, 253, 0.25);
+}
+
+.btn-close {
+    filter: invert(1);
+}
+
+/* ====================================================================
+      Lista de canciones Ranking y reproductor
+==================================================================== */
+
+.ranking-canciones {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #181818;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: transparent;
+    border: none;
+    padding: 12px;
+    transition: background 0.3s;
+}
+
+.ranking-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+}
+
+.ranking-item h5 {
+    color: var(--text-light);
+    margin-bottom: 0.1rem;
+    font-size: 1rem;
+}
+
+.ranking-item small,
+.ranking-item .text-muted {
+    color: var(--text-light) !important;
+    opacity: 0.7;
+    font-size: 0.85rem;
+}
+
+.rank-number {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--acento-spotify);
+    width: 30px;
+    text-align: center;
+}
+
+.cancion-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.song-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.song-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid transparent;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+}
+
+.song-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.cover-thumb {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.song-item .song-info {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.song-item .song-info h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-light);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.song-item .song-info small {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.song-item .song-actions {
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.song-item:hover .song-actions {
+    opacity: 1;
+}
+
+.song-item .song-actions button {
+    background: var(--acento-spotify);
+    border: none;
+    color: var(--blanco);
+    font-size: 1rem;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.song-item .song-actions button:hover {
+    transform: scale(1.1);
+}
+
+#playerBar {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 1rem;
+    width: clamp(300px, 90%, 960px);
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+    padding: .6rem .9rem;
+    background: rgba(10, 10, 10, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    z-index: 1200;
+    border: 1px solid var(--border-color);
+}
+
+#playerBar img {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+}
+
+#playerBar .song-info {
+    flex: 1;
+}
+
+#playerBar audio {
+    max-width: 300px;
+}
+
+/* ====================================================================
+   Diseño del modal de búsqueda
+==================================================================== */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 10vh;
+    z-index: 1100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.search-container {
+    background: var(--dark-bg-secondary);
+    padding: 1.5rem;
+    border-radius: 12px;
+    width: clamp(320px, 90%, 550px);
+    border: 1px solid var(--border-color);
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+}
+
+.search-bar-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.search-bar {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1.1rem;
+    outline: none;
+    background: var(--dark-bg);
+    color: var(--text-light);
+    transition: all 0.3s ease;
+}
+
+.search-bar:focus {
+    border-color: var(--acento-spotify);
+    box-shadow: 0 0 15px rgba(29, 185, 84, 0.3);
+}
+
+.search-bar-wrapper .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+#searchResults {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#searchResults::-webkit-scrollbar {
+    width: 8px;
+}
+#searchResults::-webkit-scrollbar-track {
+    background: transparent;
+}
+#searchResults::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+#searchResults::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+
+/* ====================================================================
+   RESPONSIVE
+==================================================================== */
+
+@media (min-width: 768px) {
+    .page-content {
+        padding: 3rem 2rem;
+    }
+
+    .info-box {
+        padding: 2.5rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .sidebar {
+        display: block;
+    }
+
+    .main-content {
+        margin-left: var(--sidebar-width);
+    }
+
+    .hamburger-menu, .sidebar-mobile, .mobile-overlay {
+        display: none !important;
+    }
+
+    .top-header {
+        justify-content: flex-end;
+        padding: 1.5rem 2rem;
+    }
+}

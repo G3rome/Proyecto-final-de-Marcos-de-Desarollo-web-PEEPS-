@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${cancion.titulo} + ' - ' + ${cancion.artista}">Reproductor - Peeps</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Anton&display=swap" rel="stylesheet">
+    <link href="/css/reproductor.css" rel="stylesheet">
+
+</head>
+<body>
+    <!-- Fondo con portada difuminada -->
+    <div class="background-cover" th:style="'background-image: url(' + ${cancion.cover} + ');'"></div>
+    <div class="overlay-dark"></div>
+
+    <!-- Contenedor principal -->
+    <div class="player-wrapper">
+        <div class="container-fluid h-100">
+            <div class="row h-100">
+                <div class="col-12">
+                    <!-- Header con botón de regresar -->
+                    <div class="pt-4 pb-3">
+                        <a th:href="@{/}" class="btn btn-back btn-lg rounded-pill">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Volver
+                        </a>
+                    </div>
+
+                    <!-- Contenido principal -->
+                    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+                        <div class="col-12 col-lg-10 col-xl-8">
+                            <div class="row g-4 align-items-center">
+                                <!-- Columna de la portada -->
+                                <div class="col-12 col-md-5 text-center">
+                                    <img th:src="@{${cancion.cover}}" 
+                                        th:alt="${cancion.titulo}" 
+                                        class="album-cover img-fluid">
+                                </div>
+
+                                <!-- Columna de los controles -->
+                                <div class="col-12 col-md-7">
+                                    <div class="player-card p-4 p-lg-5">
+                                        <!-- Información de la canción -->
+                                        <div class="text-center mb-4">
+                                            <h1 class="song-title mb-2" th:text="${cancion.titulo}">
+                                                Nombre de la Canción
+                                            </h1>
+                                            <p class="song-artist mb-0" th:text="${cancion.artista}">
+                                                Nombre del Artista
+                                            </p>
+                                        </div>
+
+                                        <!-- Barra de progreso -->
+                                        <div class="mb-4">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="time-text" id="currentTime">0:00</span>
+                                                <span class="time-text" id="duration">0:00</span>
+                                            </div>
+                                            <div class="progress progress-custom" 
+                                                id="progressBar" 
+                                                role="progressbar" 
+                                                style="cursor: pointer;">
+                                                <div class="progress-bar progress-bar-custom" 
+                                                    id="progressFill" 
+                                                    style="width: 0%"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Controles de reproducción -->
+                                        <div class="d-flex justify-content-center align-items-center gap-4 mb-4">
+                                            <button class="control-btn" id="prevBtn">
+                                                <i class="fas fa-backward"></i>
+                                            </button>
+                                            <button class="play-pause-btn" id="playPauseBtn">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                            <button class="control-btn" id="nextBtn">
+                                                <i class="fas fa-forward"></i>
+                                            </button>
+                                        </div>
+
+                                        <!-- Control de volumen -->
+                                        <div class="row align-items-center g-3">
+                                            <div class="col-auto">
+                                                <i class="fas fa-volume-down text-white"></i>
+                                            </div>
+                                            <div class="col">
+                                                <input type="range" 
+                                                    min="0" 
+                                                    max="100" 
+                                                    value="70" 
+                                                    class="volume-slider" 
+                                                    id="volumeSlider">
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-volume-up text-white"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio element oculto -->
+    <audio id="audioPlayer" th:src="@{${cancion.src}}"></audio>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/reproductor.js"></script>
+</body>
+</html>
