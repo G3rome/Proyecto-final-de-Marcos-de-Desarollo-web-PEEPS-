@@ -282,15 +282,13 @@ const Search = {
     },
 
     _filterSongs: async () => {
-        // Obtenemos los elementos y el valor de búsqueda
         const query = Utils.qs("#searchInput").value.toLowerCase().trim();
         const resultsContainer = Utils.qs("#searchResults");
-        resultsContainer.innerHTML = ""; // Limpiamos resultados anteriores
-
+        resultsContainer.innerHTML = ""; 
         if (!query) return;
 
         try {
-            // 3. Llamamos a la API de Spring Boot
+            //Llamamos a la API de Spring Boot
             const response = await fetch(`/music/api/buscar?query=${encodeURIComponent(query)}`);
 
             if (!response.ok) {
