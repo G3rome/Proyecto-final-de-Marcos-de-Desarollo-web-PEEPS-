@@ -19,8 +19,8 @@
 
 <body>
 
-    <button class="hamburger-menu" id="hamburgerMenu" aria-label="Abrir menú de navegación" aria-controls="sidebarMobile"
-        aria-expanded="false">
+    <button class="hamburger-menu" id="hamburgerMenu" aria-label="Abrir menú de navegación"
+        aria-controls="sidebarMobile" aria-expanded="false">
         <div class="hamburger-line"></div>
         <div class="hamburger-line"></div>
         <div class="hamburger-line"></div>
@@ -72,7 +72,8 @@
         <div class="search-container">
             <div class="search-bar-wrapper">
                 <i class="fas fa-magnifying-glass search-icon"></i>
-                <input type="text" id="searchInput" class="search-bar" placeholder="Busca tu canción o artista favorito...">
+                <input type="text" id="searchInput" class="search-bar"
+                    placeholder="Busca tu canción o artista favorito...">
             </div>
             <div id="searchResults"></div>
         </div>
@@ -168,190 +169,21 @@
                     </div>
                 </section>
                 <!--Lista de Canciones -->
-                <div class="row mt-4" id="songListContainer">
+                <div class="row mt-4 d-none" id="listaCanciones">
                     <div class="col-lg-4 col-md-6 song-list-column">
                         <h3 class="mb-3">Lista de Canciones</h3>
+
                         <ul class="list-group">
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="Bohemian Rhapsody" data-artist="Queen"
-                                    data-src="/audio/Bohemian Rhapsody.mp3" data-cover="/images/Bohemian Rhapsody.jpg">
-                                    <img src="images/Bohemian Rhapsody.jpg" class="cover-thumb me-2">
-                                    <span>Bohemian Rhapsody - Queen</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="Otro Trago"
-                                    data-artist="Sech" data-src="/audio/Otro Trago.mp3"
-                                    data-cover="/images/Otro Trago.jpg">
-                                    <img src="images/Otro Trago.jpg" class="cover-thumb me-2">
-                                    <span>Otro Trago - Sech</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="Pa Mi (Remix)" data-artist="Dalex" data-src="/audio/Pa Mi (Remix).mp3"
-                                    data-cover="/images/Pa Mi (Remix).jpg">
-                                    <img src="images/Pa Mi (Remix).jpg" class="cover-thumb me-2">
-                                    <span>Pa Mi (Remix) - Dalex</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="Lo Pasado, Pasado" data-artist="José José"
-                                    data-src="/audio/Lo Pasado, Pasado.mp3" data-cover="/images/Lo Pasado, Pasado.jpg">
-                                    <img src="images/Lo Pasado, Pasado.jpg" class="cover-thumb me-2">
-                                    <span>Lo Pasado, Pasado - José José</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="Debi Tirar Mas Fotos" data-artist="Bad Bunny" data-src="/audio/DtMF.mp3"
-                                    data-cover="/images/DtMF.jpg">
-                                    <img src="images/DtMF.jpg" class="cover-thumb me-2">
-                                    <span>DtMF - Bad Bunny</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="Debi Tirar Mas Fotos" data-artist="Bad Bunny"
-                                    data-src="/audio/Tití Me Preguntó.mp3" data-cover="/images/Tití Me Preguntó.jpg">
-                                    <img src="images/Tití Me Preguntó.jpg" class="cover-thumb me-2">
-                                    <span>Tití Me Preguntó - Bad Bunny</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="Ojitos Lindos" data-artist="Bad Bunny ft. Bomba Estéreo"
-                                    data-src="/audio/Ojitos Lindos.mp3" data-cover="/images/Ojitos Lindos.jpg">
-                                    <img src="images/Ojitos Lindos.jpg" class="cover-thumb me-2">
-                                    <span>Ojitos Lindos - Bad Bunny ft. Bomba Estéreo</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="Me Porto Bonito " data-artist="Bad Bunny ft. Chencho Corleone"
-                                    data-src="/audio/Me Porto Bonito.mp3" data-cover="/images/Me Porto Bonito.jpg">
-                                    <img src="images/Me Porto Bonito.jpg" class="cover-thumb me-2">
-                                    <span>Me Porto Bonito - Bad Bunny ft. Chencho Corleone</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="La Canción"
-                                    data-artist="J Balvin & Bad Bunny" data-src="/audio/La Canción.mp3"
-                                    data-cover="/images/La Canción.jpg">
-                                    <img src="images/La Canción.jpg" class="cover-thumb me-2">
-                                    <span>La Canción - J Balvin & Bad Bunny</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="Todo De Ti"
-                                    data-artist="Rauw Alejandro" data-src="/audio/Todo De Ti.mp3"
-                                    data-cover="/images/Todo De Ti.jpg">
-                                    <img src="images/Todo De Ti.jpg" class="cover-thumb me-2">
-                                    <span>Todo De Ti - Rauw Alejandro</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="Pareja del Año" data-artist="Sebastián Yatra, Myke towers"
-                                    data-src="/audio/Pareja del Año.mp3" data-cover="/images/Pareja del Año.jpg">
-                                    <img src="images/Pareja del Año.jpg" class="cover-thumb me-2">
-                                    <span>Pareja del Año - Sebastián Yatra, Myke towers</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="Dakiti"
-                                    data-artist="Bad Bunny & Jhay Cortez" data-src="/audio/Dakiti.mp3"
-                                    data-cover="/images/Dakiti.jpg">
-                                    <img src="images/Dakiti.jpg" class="cover-thumb me-2">
-                                    <span>Dakiti - Bad Bunny & Jhay Cortez</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="Monotonía"
-                                    data-artist="Shakira & Ozuna" data-src="/audio/Monotonía.mp3"
-                                    data-cover="/images/Monotonía.jpg">
-                                    <img src="images/Monotonía.jpg" class="cover-thumb me-2">
-                                    <span>Monotonía - Shakira & Ozuna</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="Despechá"
-                                    data-artist="Rosalía" data-src="/audio/Despechá.mp3"
-                                    data-cover="/images/Despechá.jpg">
-                                    <img src="images/Despechá.jpg" class="cover-thumb me-2">
-                                    <span>Despechá - Rosalía</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="Con Altura"
-                                    data-artist="Rosalía & J Balvin ft. El Guincho" data-src="/audio/Con Altura.mp3"
-                                    data-cover="/images/Con Altura.jpg">
-                                    <img src="images/Con Altura.jpg" class="cover-thumb me-2">
-                                    <span>Con Altura - Rosalía & J Balvin ft. El Guincho</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="Tacones Rojos" data-artist="Sebastián Yatra"
-                                    data-src="/audio/Tacones Rojos.mp3" data-cover="/images/Tacones Rojos.jpg">
-                                    <img src="images/Tacones Rojos.jpg" class="cover-thumb me-2">
-                                    <span>Tacones Rojos -Sebastián Yatra</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="Me Rehúso"
-                                    data-artist="Danny Ocean" data-src="/audio/Me Rehúso.mp3"
-                                    data-cover="/images/Me Rehúso.jpg">
-                                    <img src="images/Me Rehúso.jpg" class="cover-thumb me-2">
-                                    <span>Me Rehúso - Danny Ocean</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="Hawái"
-                                    data-artist="Maluma" data-src="/audio/Hawái.mp3" data-cover="/images/Hawái.jpg">
-                                    <img src="images/Hawái.jpg" class="cover-thumb me-2">
-                                    <span>Hawái - Maluma</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="La Botella"
-                                    data-artist="Grupo Palo Blanco" data-src="/audio/La Botella.mp3"
-                                    data-cover="/images/La Botella.jpg">
-                                    <img src="images/La Botella.jpg" class="cover-thumb me-2">
-                                    <span>La Botella - Grupo Palo Blanco</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="Felices los 4" data-artist="Maluma" data-src="/audio/Felices los 4.mp3"
-                                    data-cover="/images/Felices los 4.jpg">
-                                    <img src="images/Felices los 4.jpg" class="cover-thumb me-2">
-                                    <span>Felices los 4 - Maluma</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="La Alergia"
-                                    data-artist="Donny Caballero x Dj Paul" data-src="/audio/La Alergia.mp3"
-                                    data-cover="/images/La Alergia.jpg">
-                                    <img src="images/La Alergia.jpg" class="cover-thumb me-2">
-                                    <span>La Alergia - Donny Caballero x Dj Paul</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="cabellos blancos" data-artist="Carmencita Lara"
-                                    data-src="/audio/cabellos blancos.mp3" data-cover="/images/cabellos blancos.jpg">
-                                    <img src="images/cabellos blancos.jpg" class="cover-thumb me-2">
-                                    <span>cabellos blancos - carmencita Lara</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="carta al cielo" data-artist="Lucha Reyes"
-                                    data-src="/audio/carta al cielo.mp3" data-cover="/images/carta al cielo.jpg">
-                                    <img src="images/carta al cielo.jpg" class="cover-thumb me-2">
-                                    <span>carta al cielo - Lucha Reyes</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="Qué Más Pues?" data-artist="J Balvin & María Becerra"
-                                    data-src="/audio/Qué Más Pues.mp3" data-cover="/images/Qué Más Pues.jpg">
-                                    <img src="images/Qué Más Pues.jpg" class="cover-thumb me-2">
-                                    <span>Qué Más Pues? - J Balvin & María Becerra</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="AM Remix"
-                                    data-artist="Nio García, J Balvin, Bad Bunny" data-src="/audio/AM Remix.mp3"
-                                    data-cover="/images/AM Remix.jpg">
-                                    <img src="images/AM Remix.jpg" class="cover-thumb me-2">
-                                    <span>AM Remix - Nio García, J Balvin, Bad Bunny</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="Volví"
-                                    data-artist="Aventura & Bad Bunny" data-src="/audio/Volví.mp3"
-                                    data-cover="/images/Volví.jpg">
-                                    <img src="images/Volví.jpg" class="cover-thumb me-2">
-                                    <span>Volví - Aventura & Bad Bunny</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    data-title="Salió el Sol" data-artist="Don Omar" data-src="/audio/Salió el Sol.mp3"
-                                    data-cover="/images/Salió el Sol.jpg">
-                                    <img src="images/Salió el Sol.jpg" class="cover-thumb me-2">
-                                    <span>Salió el Sol - Don Omar</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="Sunset"
-                                    data-artist="Farruko ft. Shaggy, Nicky Jam" data-src="/audio/Sunset.mp3"
-                                    data-cover="/images/Sunset.jpg">
-                                    <img src="images/Sunset.jpg" class="cover-thumb me-2">
-                                    <span>Sunset - Farruko ft. Shaggy, Nicky Jam</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="Chillax"
-                                    data-artist="Farruko ft. Ky-Mani Marley" data-src="/audio/Chillax.mp3"
-                                    data-cover="/images/Chillax.jpg">
-                                    <img src="images/Chillax.jpg" class="cover-thumb me-2">
-                                    <span>Chillax - Farruko ft. Ky-Mani Marley</span>
-                                </li>
-                                <li class="list-group-item d-flex align-items-center song-item" data-title="Ella y Yo"
-                                    data-artist="Aventura ft. Don Omar" data-src="/audio/Ella y Yo.mp3"
-                                    data-cover="/images/Ella y Yo.jpg">
-                                    <img src="images/Ella y Yo.jpg" class="cover-thumb me-2">
-                                    <span>Ella y Yo - Aventura ft. Don Omar</span>
-                             </li>
+                            <li class="list-group-item d-flex align-items-center song-item"
+                                th:each="cancion : ${canciones}" th:data-id="${cancion.id}"
+                                th:data-title="${cancion.titulo}" th:data-artist="${cancion.artista}"
+                                th:data-src="${cancion.src}" th:data-cover="${cancion.cover}">
+
+                                <img th:src="@{${cancion.cover}}" class="cover-thumb me-2" alt="Cover">
+                                <span th:text="${cancion.titulo} + ' - ' + ${cancion.artista}"></span>
+                            </li>
                         </ul>
+
                     </div>
                 </div>
 
@@ -410,7 +242,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="passwordRegistro" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="passwordRegistro" name="password" required minlength="6">
+                            <input type="password" class="form-control" id="passwordRegistro" name="password" required
+                                minlength="6">
                         </div>
                         <div class="mb-3">
                             <label for="confirmPasswordRegistro" class="form-label">Confirmar contraseña</label>
@@ -454,7 +287,8 @@
                             <label class="form-check-label" for="recordarLogin">Recordar mi sesión</label>
                         </div>
                         <div class="text-end">
-                            <a href="#" id="recuperarPasswordLink" class="text-primary text-decoration-none">¿Olvidaste tu contraseña?</a>
+                            <a href="#" id="recuperarPasswordLink" class="text-primary text-decoration-none">¿Olvidaste
+                                tu contraseña?</a>
                         </div>
                     </form>
                 </div>
@@ -483,7 +317,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="recuperarPasswordModal" tabindex="-1" aria-labelledby="recuperarPasswordModalLabel" aria-hidden="true">
+    <div class="modal fade" id="recuperarPasswordModal" tabindex="-1" aria-labelledby="recuperarPasswordModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">

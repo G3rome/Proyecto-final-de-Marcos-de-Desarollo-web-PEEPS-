@@ -1,74 +1,51 @@
 package com.example.demo.controller;
 
+// --- Importaciones necesarias ---
+import com.example.demo.model.Cancion; // (1) Importa tu Entidad
+import com.example.demo.repository.CancionRepository; // (2) Importa tu Repositorio
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import java.util.List;
 
 @Controller
 @RequestMapping("/music")
 public class MusicController {
     
+    // (3) Inyecta el repositorio para usar la BD
+    @Autowired
+    private CancionRepository cancionRepository;
+
+    /**
+     * (4) MÉTODO MODIFICADO:
+     * Ahora recibe un 'id' (Long) en lugar de 4 Strings.
+     */
     @GetMapping("/reproductor")
-    public String reproductor(
-            @RequestParam String titulo,
-            @RequestParam String artista,
-            @RequestParam String cover,
-            @RequestParam String src,
-            Model model) {
+    public String reproductor(@RequestParam Long id, Model model) {
         
-        // Crear objeto con los datos de la canción
-        Cancion cancion = new Cancion(titulo, artista, cover, src);
+        // (5) Busca la canción por su ID en la BD.
+        // Si no la encuentra, lanza un error 404 (Canción no encontrada).
+        Cancion cancion = cancionRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Canción no encontrada"));
         
-        // Pasar la canción al modelo
+        // (6) Pasa la canción encontrada al modelo (esto ya lo hacías y está perfecto).
         model.addAttribute("cancion", cancion);
         
-        return "reproductor";
+        return "reproductor"; // Renderiza 'reproductor.html'
     }
-    
-    // Clase interna para representar una canción
-    public static class Cancion {
-        private String titulo;
-        private String artista;
-        private String cover;
-        private String src;
-        
-        public Cancion(String titulo, String artista, String cover, String src) {
-            this.titulo = titulo;
-            this.artista = artista;
-            this.cover = cover;
-            this.src = src;
-        }
-        
-        public String getTitulo() {
-            return titulo;
-        }
-        
-        public String getArtista() {
-            return artista;
-        }
-        
-        public String getCover() {
-            return cover;
-        }
-        
-        public String getSrc() {
-            return src;
-        }
-        
-        public void setTitulo(String titulo) {
-            this.titulo = titulo;
-        }
-        
-        public void setArtista(String artista) {
-            this.artista = artista;
-        }
-        
-        public void setCover(String cover) {
-            this.cover = cover;
-        }
-        
-        public void setSrc(String src) {
-            this.src = src;
-        }
+
+    /**
+     * (7) MÉTODO NUEVO: API PARA EL BUSCADOR
+     * Este endpoint reemplazará tu 'cancionesMock' en main.js
+     * @ResponseBody le dice a Spring que devuelva JSON, no una página HTML.
+     */
+    @GetMapping("/api/buscar")
+    @ResponseBody 
+    public List<Cancion> buscarCanciones(@RequestParam String query) {
+        // (8) Usa la consulta personalizada que definimos en el Repositorio
+        return cancionRepository.findByTituloContainingIgnoreCaseOrArtistaContainingIgnoreCase(query, query);
     }
 }

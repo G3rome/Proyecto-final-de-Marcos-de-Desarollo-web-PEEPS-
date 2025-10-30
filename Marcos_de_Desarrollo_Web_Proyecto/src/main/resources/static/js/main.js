@@ -74,7 +74,7 @@ const Auth = {
 
             Auth.setUser(data.usuario);
             Notifier.show(`¡Bienvenido ${data.usuario.nombre}!`, 'success');
-            
+
             const modal = bootstrap.Modal.getInstance(form.closest('.modal'));
             modal.hide();
 
@@ -124,6 +124,9 @@ const UI = {
         Utils.qs('#logoutBtn').addEventListener('click', Auth.cerrarSesion);
         Utils.qs('#authCards').style.display = 'none';
         Utils.qs("#welcomeSection")?.classList.add("d-none");
+
+        Utils.qs("#rankingSection")?.classList.remove("d-none");
+        Utils.qs("#listaCanciones")?.classList.remove("d-none");
     },
 
     restoreInitialState: () => {
@@ -150,7 +153,7 @@ const UI = {
             new bootstrap.Modal(Utils.qs('#recuperarPasswordModal')).show();
         });
     },
-    
+
     setupMobileMenu: () => {
         const hamburger = Utils.qs('#hamburgerMenu');
         const sidebar = Utils.qs('#sidebarMobile');
@@ -175,10 +178,10 @@ const UI = {
             if (window.innerWidth > 991.98) closeMenu();
         });
     },
-    
+
     setupSidebarNavigation: () => {
         Utils.qsa('.sidebar .nav-item').forEach(item => {
-            item.addEventListener('click', function(e) {
+            item.addEventListener('click', function (e) {
                 e.preventDefault();
                 Utils.qsa('.sidebar .nav-item').forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
@@ -242,26 +245,6 @@ const Validation = {
     }
 };
 
-const Player = {
-    playSongPage: (title, artist, src, cover) => {
-        const url = `/music/reproductor?titulo=${encodeURIComponent(title)}&artista=${encodeURIComponent(artist)}&src=${encodeURIComponent(src)}&cover=${encodeURIComponent(cover)}`;
-        window.location.href = url;
-    },
-    stop: () => {
-        const audioPlayer = Utils.qs("#audioPlayer");
-        if (audioPlayer) { audioPlayer.pause(); audioPlayer.currentTime = 0; }
-        Utils.qs("#playerBar")?.classList.add("d-none");
-    },
-    initSongLinks: () => {
-        Utils.qs('#songListContainer')?.addEventListener('click', (e) => {
-            const songItem = e.target.closest('.song-item');
-            if (songItem) {
-                const { title, artist, src, cover } = songItem.dataset;
-                Player.playSongPage(title, artist, src, cover);
-            }
-        });
-    }
-};
 
 const Search = {
     currentSong: null,
@@ -298,28 +281,51 @@ const Search = {
         return item;
     },
 
-    _filterSongs: () => {
+    _filterSongs: async () => {
+        // Obtenemos los elementos y el valor de búsqueda
         const query = Utils.qs("#searchInput").value.toLowerCase().trim();
         const resultsContainer = Utils.qs("#searchResults");
-        resultsContainer.innerHTML = "";
+        resultsContainer.innerHTML = ""; // Limpiamos resultados anteriores
 
         if (!query) return;
 
-        const filtered = cancionesMock.filter(c =>
-            c.title.toLowerCase().includes(query) || c.artist.toLowerCase().includes(query)
-        );
+        try {
+            // 3. Llamamos a la API de Spring Boot
+            const response = await fetch(`/music/api/buscar?query=${encodeURIComponent(query)}`);
 
-        if (filtered.length === 0) {
-            resultsContainer.innerHTML = `<p style="text-align:center;color:#888;">No se encontraron canciones</p>`;
-            return;
+            if (!response.ok) {
+                throw new Error('Respuesta negativa de la API');
+            }
+
+            const filtradas = await response.json();
+
+            if (filtradas.length === 0) {
+                resultsContainer.innerHTML = `<p style="text-align:center;color:#888;">No se encontraron canciones</p>`;
+                return;
+            }
+
+            filtradas.forEach(c => {
+
+                const songCompatible = {
+                    title: c.titulo,
+                    artist: c.artista,
+                    cover: c.cover,
+                    src: c.src
+                };
+
+                const item = Search._createSongItem(songCompatible);
+
+                resultsContainer.appendChild(item);
+
+                setTimeout(() => item.classList.add("show"), 50);
+            });
+
+        } catch (error) {
+            console.error("Error al buscar canciones:", error);
+            resultsContainer.innerHTML = `<p style="text-align:center;color:#888;">Error al cargar resultados</p>`;
         }
-
-        filtered.forEach(song => {
-            const item = Search._createSongItem(song);
-            resultsContainer.appendChild(item);
-            setTimeout(() => item.classList.add("show"), 50);
-        });
     },
+
 
     init: () => {
         Search.audioPlayer = Utils.qs("#audioPlayerSearch");
@@ -355,8 +361,21 @@ const initializePeepsApp = () => {
     UI.setupMobileMenu();
     UI.setupEventListeners();
     Validation.setupFormValidations();
-    Player.initSongLinks();
     Search.init();
+
+    //Reproductor de música
+    function playSong(id) {
+        const url = `/music/reproductor?id=${id}`;
+        window.location.href = url;
+    }
+
+    //Para la lista
+    document.querySelectorAll('.song-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const id = item.getAttribute('data-id');
+            playSong(id);
+        });
+    });
 
     const user = Auth.getUser();
     if (user) {
