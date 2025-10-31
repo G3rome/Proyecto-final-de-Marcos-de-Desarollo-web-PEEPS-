@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Anton&display=swap"
         rel="stylesheet">
     <link href="css/main.css" rel="stylesheet">
+
     <style>
         .song-item span {
             color: white;
@@ -65,6 +66,15 @@
                     <span>Buscar</span>
                 </a>
             </div>
+            <!-- Funcionalidad: Playlist -->
+            <!-- Inicio: -->
+            <div class="nav-section">
+                <a th:href="@{/playlist}" class="nav-item playlist-btn" id="playlistBtn">
+                    <i class="fa-solid fa-music"></i>
+                    <span>Playlist</span>
+                </a>
+            </div>
+            <!-- Fin -->
         </div>
     </nav>
 
@@ -80,7 +90,7 @@
     </div>
     <audio id="audioPlayerSearch"></audio>
 
-    <main class="main-content">
+    <main id="mainDynamicContent" class="main-content" >
         <header class="top-header">
             <div class="header-right" id="headerAuthButtons">
                 <button class="btn-custom-outline" data-bs-toggle="modal" data-bs-target="#loginModal">
@@ -92,134 +102,145 @@
             </div>
         </header>
 
-        <div class="page-content">
-            <div class="container">
-                <section class="hero-section text-center">
-                    <h1 class="hero-title">Bienvenido a Peeps</h1>
-                    <p class="hero-subtitle">Radio felicidad 88.9 FM</p>
-                </section>
+        <!-- Modificacion: Carga dinamica con Thymeleaf -->
+        <!-- NOTA: Eliminar "mainDynamicContent" en caso de errores y dejar afuera a "page-content" en adelante -->
+        <!-- Inicio: -->
+        <div id="mainDynamicContent">
+            <div class="page-content">
+                <div class="container">
+                    <section class="hero-section text-center">
+                        <h1 class="hero-title">Bienvenido a Peeps</h1>
+                        <p class="hero-subtitle">Radio felicidad 88.9 FM</p>
+                    </section>
 
-                <section class="row justify-content-center" id="welcomeSection">
-                    <div class="col-lg-6">
-                        <div class="info-box">
-                            <h2 class="info-title">¿Eres nuevo en Peeps?</h2>
-                            <p class="info-text">Regístrate para comenzar a escuchar tus canciones favoritas</p>
-                            <p class="info-highlight">¡Únete a nuestra comunidad!</p>
+                    <section class="row justify-content-center" id="welcomeSection">
+                        <div class="col-lg-6">
+                            <div class="info-box">
+                                <h2 class="info-title">¿Eres nuevo en Peeps?</h2>
+                                <p class="info-text">Regístrate para comenzar a escuchar tus canciones favoritas</p>
+                                <p class="info-highlight">¡Únete a nuestra comunidad!</p>
+                            </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-                <section class="row justify-content-center" id="rankingSection">
-                    <div class="col-lg-8">
-                        <div class="info-box">
-                            <h2 class="info-title text-center mb-4 fw-bold">Ranking de Canciones</h2>
-                            <div class="list-group ranking-canciones">
-                                <!--Cancion 1-->
-                                <div class="list-group-item d-flex align-items-center ranking-item">
-                                    <span class="rank-number">1</span>
-                                    <img src="images/Bohemian Rhapsody.jpg" alt="Bohemian Rhapsody" class="cancion-img">
-                                    <div class="ms-3 flex-grow-1">
-                                        <h5 class="mb-0">Bohemian Rhapsody</h5>
-                                        <small class="text-muted">Queen</small>
+                    <section class="row justify-content-center" id="rankingSection">
+                        <div class="col-lg-8">
+                            <div class="info-box">
+                                <h2 class="info-title text-center mb-4 fw-bold">Ranking de Canciones</h2>
+                                <div class="list-group ranking-canciones">
+                                    <!--Cancion 1-->
+                                    <div class="list-group-item d-flex align-items-center ranking-item">
+                                        <span class="rank-number">1</span>
+                                        <img src="images/Bohemian Rhapsody.jpg" alt="Bohemian Rhapsody"
+                                            class="cancion-img">
+                                        <div class="ms-3 flex-grow-1">
+                                            <h5 class="mb-0">Bohemian Rhapsody</h5>
+                                            <small class="text-muted">Queen</small>
+                                        </div>
+                                        <span class="text-muted">5:59</span>
                                     </div>
-                                    <span class="text-muted">5:59</span>
-                                </div>
-                                <!--Cancion 2-->
-                                <div class="list-group-item d-flex align-items-center ranking-item">
-                                    <span class="rank-number">2</span>
-                                    <img src="images/Otro Trago.jpg" alt="Otro Trago" class="cancion-img">
-                                    <div class="ms-3 flex-grow-1">
-                                        <h5 class="mb-0">Otro Trago</h5>
-                                        <small class="text-muted">Sech</small>
+                                    <!--Cancion 2-->
+                                    <div class="list-group-item d-flex align-items-center ranking-item">
+                                        <span class="rank-number">2</span>
+                                        <img src="images/Otro Trago.jpg" alt="Otro Trago" class="cancion-img">
+                                        <div class="ms-3 flex-grow-1">
+                                            <h5 class="mb-0">Otro Trago</h5>
+                                            <small class="text-muted">Sech</small>
+                                        </div>
+                                        <span class="text-muted">3:50</span>
                                     </div>
-                                    <span class="text-muted">3:50</span>
-                                </div>
-                                <!--Cancion 3-->
-                                <div class="list-group-item d-flex align-items-center ranking-item">
-                                    <span class="rank-number">3</span>
-                                    <img src="images/Tal Vez.jpg" alt="Tal Vez" class="cancion-img">
-                                    <div class="ms-3 flex-grow-1">
-                                        <h5 class="mb-0">Tal Vez</h5>
-                                        <small class="text-muted">Paulo Londra</small>
+                                    <!--Cancion 3-->
+                                    <div class="list-group-item d-flex align-items-center ranking-item">
+                                        <span class="rank-number">3</span>
+                                        <img src="images/Tal Vez.jpg" alt="Tal Vez" class="cancion-img">
+                                        <div class="ms-3 flex-grow-1">
+                                            <h5 class="mb-0">Tal Vez</h5>
+                                            <small class="text-muted">Paulo Londra</small>
+                                        </div>
+                                        <span class="text-muted">4:31</span>
                                     </div>
-                                    <span class="text-muted">4:31</span>
-                                </div>
-                                <!--Cancion 4-->
-                                <div class="list-group-item d-flex align-items-center ranking-item">
-                                    <span class="rank-number">4</span>
-                                    <img src="images/Pa Mi (Remix).jpg" alt="Pa Mi (Remix)" class="cancion-img">
-                                    <div class="ms-3 flex-grow-1">
-                                        <h5 class="mb-0">Pa Mi (Remix)</h5>
-                                        <small class="text-muted">Dalex</small>
+                                    <!--Cancion 4-->
+                                    <div class="list-group-item d-flex align-items-center ranking-item">
+                                        <span class="rank-number">4</span>
+                                        <img src="images/Pa Mi (Remix).jpg" alt="Pa Mi (Remix)" class="cancion-img">
+                                        <div class="ms-3 flex-grow-1">
+                                            <h5 class="mb-0">Pa Mi (Remix)</h5>
+                                            <small class="text-muted">Dalex</small>
+                                        </div>
+                                        <span class="text-muted">6:01</span>
                                     </div>
-                                    <span class="text-muted">6:01</span>
-                                </div>
-                                <!--Cancion 5-->
-                                <div class="list-group-item d-flex align-items-center ranking-item">
-                                    <span class="rank-number">5</span>
-                                    <img src="images/Lo Pasado, Pasado.jpg" alt="Lo Pasado, Pasado" class="cancion-img">
-                                    <div class="ms-3 flex-grow-1">
-                                        <h5 class="mb-0">Lo Pasado, Pasado</h5>
-                                        <small class="text-muted">José José</small>
+                                    <!--Cancion 5-->
+                                    <div class="list-group-item d-flex align-items-center ranking-item">
+                                        <span class="rank-number">5</span>
+                                        <img src="images/Lo Pasado, Pasado.jpg" alt="Lo Pasado, Pasado"
+                                            class="cancion-img">
+                                        <div class="ms-3 flex-grow-1">
+                                            <h5 class="mb-0">Lo Pasado, Pasado</h5>
+                                            <small class="text-muted">José José</small>
+                                        </div>
+                                        <span class="text-muted">4:11</span>
                                     </div>
-                                    <span class="text-muted">4:11</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </section>
-                <!--Lista de Canciones -->
-                <div class="row mt-4 d-none" id="listaCanciones">
-                    <div class="col-lg-4 col-md-6 song-list-column">
-                        <h3 class="mb-3">Lista de Canciones</h3>
+                    </section>
+                    <!--Lista de Canciones -->
+                    <div class="row mt-4 d-none" id="listaCanciones">
+                        <div class="col-lg-4 col-md-6 song-list-column">
+                            <h3 class="mb-3">Lista de Canciones</h3>
 
-                        <ul class="list-group">
-                            <li class="list-group-item d-flex align-items-center song-item"
-                                th:each="cancion : ${canciones}" th:data-id="${cancion.id}"
-                                th:data-title="${cancion.titulo}" th:data-artist="${cancion.artista}"
-                                th:data-src="${cancion.src}" th:data-cover="${cancion.cover}">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex align-items-center song-item"
+                                    th:each="cancion : ${canciones}" th:data-id="${cancion.id}"
+                                    th:data-title="${cancion.titulo}" th:data-artist="${cancion.artista}"
+                                    th:data-src="${cancion.src}" th:data-cover="${cancion.cover}">
 
-                                <img th:src="@{${cancion.cover}}" class="cover-thumb me-2" alt="Cover">
-                                <span th:text="${cancion.titulo} + ' - ' + ${cancion.artista}"></span>
-                            </li>
-                        </ul>
+                                    <img th:src="@{${cancion.cover}}" class="cover-thumb me-2" alt="Cover">
+                                    <span th:text="${cancion.titulo} + ' - ' + ${cancion.artista}"></span>
+                                </li>
+                            </ul>
 
-                    </div>
-                </div>
-
-                </section>
-
-                <div id="playerBar" class="player-bar d-none">
-                    <img id="playerCover" src="" alt="cover">
-                    <div class="song-info">
-                        <h6 id="playerTitle"></h6>
-                        <small id="playerArtist"></small>
-                    </div>
-                    <audio id="audioPlayer" controls></audio>
-                </div>
-
-                <section class="row justify-content-center" id="authCards">
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card-custom">
-                            <div class="card-icon">+</div>
-                            <h3 class="card-title">Regístrate</h3>
-                            <p class="card-description">Crea tu cuenta y comienza a explorar Peeps</p>
-                            <a href="#" class="btn btn-custom-primary" data-bs-toggle="modal"
-                                data-bs-target="#registroModal">+ Crear Cuenta</a>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card-custom">
-                            <div class="card-icon">→</div>
-                            <h3 class="card-title">Inicia Sesión</h3>
-                            <p class="card-description">Accede a tu cuenta existente</p>
-                            <a href="#" class="btn btn-custom-outline" data-bs-toggle="modal"
-                                data-bs-target="#loginModal">→ Iniciar Sesión</a>
+
+                    </section>
+
+                    <div id="playerBar" class="player-bar d-none">
+                        <img id="playerCover" src="" alt="cover">
+                        <div class="song-info">
+                            <h6 id="playerTitle"></h6>
+                            <small id="playerArtist"></small>
                         </div>
+                        <audio id="audioPlayer" controls></audio>
                     </div>
-                </section>
+
+                    <section class="row justify-content-center" id="authCards">
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card-custom">
+                                <div class="card-icon">+</div>
+                                <h3 class="card-title">Regístrate</h3>
+                                <p class="card-description">Crea tu cuenta y comienza a explorar Peeps</p>
+                                <a href="#" class="btn btn-custom-primary" data-bs-toggle="modal"
+                                    data-bs-target="#registroModal">+ Crear Cuenta</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card-custom">
+                                <div class="card-icon">→</div>
+                                <h3 class="card-title">Inicia Sesión</h3>
+                                <p class="card-description">Accede a tu cuenta existente</p>
+                                <a href="#" class="btn btn-custom-outline" data-bs-toggle="modal"
+                                    data-bs-target="#loginModal">→ Iniciar Sesión</a>
+                            </div>
+                        </div>
+                    </section>
+                </div>
             </div>
+
         </div>
+        <!-- Fin -->
+
+
     </main>
 
     <!-- Modales de autenticación y recuperación de contraseña -->

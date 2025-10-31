@@ -179,19 +179,92 @@ const UI = {
         });
     },
 
-    setupSidebarNavigation: () => {
+    // Modificacion: Ajuste de funcionalidad para la mejora de navegación en la barra lateral
+    // Inicio:
+   setupSidebarNavigation: () => {
+        const contentContainer = Utils.qs('#mainDynamicContent');
+        // Guardamos el contenido inicial (vista Home) para poder restaurarlo luego
+        const initialContent = contentContainer ? contentContainer.innerHTML : '';
+
+        // Función auxiliar para manejar elementos dentro del fragmento Playlist
+        const initInjectedPlaylistUI = () => {
+        const volverBtn = Utils.qs('.btn-volver', contentContainer);
+            if (volverBtn) {
+                volverBtn.addEventListener('click', (e) => {
+                    
+                    // En caso de error, prevenimos el comportamiento por defecto
+                    e.preventDefault();
+                
+                    // Restauramos el contenido inicial (Home)
+                    if (contentContainer) contentContainer.innerHTML = initialContent;
+                    Notifier.show('🏠 Volviendo al inicio', 'info');
+
+                    // Re-inicializar componentes o scripts del home
+                    if (typeof initializePeepsApp === 'function') {
+                    initializePeepsApp();
+                    }
+                });
+            }
+
+            // Ejemplo: al hacer click en una playlist-card, mostrar mensaje
+            Utils.qsa('.playlist-card', contentContainer).forEach(card => {
+                card.addEventListener('click', () => {
+                Notifier.show(`🎧 Abriendo ${card.querySelector('h5')?.textContent || ''}`, 'info');
+                });
+            });
+        };
+
+        // Listener para cada ítem del sidebar
         Utils.qsa('.sidebar .nav-item').forEach(item => {
             item.addEventListener('click', function (e) {
+                // Prevenimos la navegación por defecto
                 e.preventDefault();
+        
+                // Cambiar visualmente la selección
                 Utils.qsa('.sidebar .nav-item').forEach(i => i.classList.remove('active'));
+        
                 this.classList.add('active');
-                if (!this.classList.contains('search-btn')) {
-                    const section = Utils.qs('span', this).textContent;
-                    Notifier.show(`Navegando a ${section}`, 'info');
-                }
+                const section = Utils.qs('span', this)?.textContent?.trim().toLowerCase();
+                if (section === 'playlist') {
+                    fetch('/playlist', {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                    const contentContainer = Utils.qs('#mainDynamicContent');
+                    if (contentContainer) {
+                        contentContainer.innerHTML = html;
+                        // Notifier.show('Página de Playlist cargada correctamente 🎵', 'success');
+                        // Actualiza la URL sin recargar
+                        history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
+                    }
+                    })
+                    
+                    .catch(error => {
+                        console.error('Error cargando Playlist:', error);
+                        Notifier.show('Error al cargar Playlist 😢', 'danger');
+                    });
+                } else if (section === 'inicio' || section === 'home') {
+                        const contentContainer = Utils.qs('#mainDynamicContent');
+                        // Restauramos la vista inicial
+                        if (contentContainer) {
+                            contentContainer.innerHTML = initialContent;
+                            initializePeepsApp();
+                            // if (typeof initializePeepsApp === 'function') {
+                            //     initializePeepsApp();
+                            // }
+                            // Notifier.show('🏠 Volviendo al inicio', 'info');
+                        }
+                        history.pushState({ page: 'home' }, 'Home', '/');
+                    }
+                // Prototipado:
+                // } else if (!this.classList.contains('search-btn')) {
+                //     Notifier.show(`Navegando a ${section}`, 'info');
+                // }
             });
         });
     }
+    // Fin
 };
 
 const Validation = {
