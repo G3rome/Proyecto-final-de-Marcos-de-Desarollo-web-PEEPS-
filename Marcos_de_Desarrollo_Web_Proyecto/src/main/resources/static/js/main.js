@@ -88,14 +88,20 @@ const Auth = {
     handleRegistro: async () => {
         const form = Utils.qs('#registroForm');
         if (!Validation.validateForm(form)) return Notifier.show('Por favor corrige los errores.', 'danger');
-        const formData = { nombre: Utils.qs('#nombreRegistro').value, email: Utils.qs('#emailRegistro').value, password: Utils.qs('#passwordRegistro').value };
+        const formData = { 
+            nombreCompleto: Utils.qs('#nombreRegistro').value, 
+            email: Utils.qs('#emailRegistro').value, 
+            contrasena: Utils.qs('#passwordRegistro').value };
         await Auth._handleAuthRequest('/api/usuarios/registro', formData, form);
     },
 
     handleLogin: async () => {
         const form = Utils.qs('#loginForm');
         if (!Validation.validateForm(form)) return Notifier.show('Por favor corrige los errores.', 'danger');
-        const formData = { email: Utils.qs('#emailLogin').value, password: Utils.qs('#passwordLogin').value, recordar: Utils.qs('#recordarLogin').checked };
+        const formData = { 
+            email: Utils.qs('#emailLogin').value, 
+            contrasena: Utils.qs('#passwordLogin').value, 
+            recordar: Utils.qs('#recordarLogin').checked };
         await Auth._handleAuthRequest('/api/usuarios/login', formData, form);
     },
 
@@ -225,37 +231,99 @@ const UI = {
         
                 this.classList.add('active');
                 const section = Utils.qs('span', this)?.textContent?.trim().toLowerCase();
+                // Insercion de animacion de despliegue:
                 if (section === 'playlist') {
-                    fetch('/playlist', {
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .then(response => response.text())
-                    .then(html => {
+                    
                     const contentContainer = Utils.qs('#mainDynamicContent');
-                    if (contentContainer) {
-                        contentContainer.innerHTML = html;
+
+                    // Animación de salida
+                    contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+                    contentContainer.style.opacity = 0;
+                    contentContainer.style.transform = "translateY(15px)";
+                    
+                   setTimeout(() => {
+                        fetch('/playlist', {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        })
+                    
+                        .then(response => response.text())
+                
+                        .then(html => {
+                            if (contentContainer) {
+                                contentContainer.innerHTML = html;
+
+                                // Animación de entrada
+                                contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+                                contentContainer.style.opacity = 1;
+                                contentContainer.style.transform = "translateY(0)";
+
+                                // Actualiza la URL sin recargar
+                                history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
+
+                                // Re-inicializa la UI interna (botón volver, etc.)
+                                initInjectedPlaylistUI();
+                            }
+                        })
+                        
+                        .catch(error => {
+                            console.error('Error cargando Playlist:', error);
+                            Notifier.show('Error al cargar Playlist 😢', 'danger');
+                        });
+                    }, 300); // Espera que acabe la animación de salida
+
+                    // Experimentacion de codigo:
+                    //     headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    // })
+                    // .then(response => response.text())
+                    // .then(html => {
+                    // const contentContainer = Utils.qs('#mainDynamicContent');
+                    // if (contentContainer) {
+                    //     contentContainer.innerHTML = html;
                         // Notifier.show('Página de Playlist cargada correctamente 🎵', 'success');
                         // Actualiza la URL sin recargar
-                        history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
-                    }
-                    })
+                    //     history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
+                    // }
+                    // })
                     
-                    .catch(error => {
-                        console.error('Error cargando Playlist:', error);
-                        Notifier.show('Error al cargar Playlist 😢', 'danger');
-                    });
+                    // .catch(error => {
+                    //     console.error('Error cargando Playlist:', error);
+                    //     Notifier.show('Error al cargar Playlist 😢', 'danger');
+                    // });
                 } else if (section === 'inicio' || section === 'home') {
+                        
                         const contentContainer = Utils.qs('#mainDynamicContent');
+
+                        contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+                        contentContainer.style.opacity = 0;
+                        contentContainer.style.transform = "translateY(15px)";
+
+                         setTimeout(() => {
+                            if (contentContainer) {
+                                // Restauramos la vista inicial
+                                contentContainer.innerHTML = initialContent;
+
+                                // Re-inicializar scripts del Home
+                                if (typeof initializePeepsApp === 'function') {
+                                    initializePeepsApp();
+                                }
+
+                                // Animación de entrada
+                                contentContainer.style.opacity = 1;
+                                contentContainer.style.transform = "translateY(0)";
+                            }
+                            history.pushState({ page: 'home' }, 'Home', '/');
+                        }, 300);
+                        // Experimientacion de animacion de salida:
                         // Restauramos la vista inicial
-                        if (contentContainer) {
-                            contentContainer.innerHTML = initialContent;
-                            initializePeepsApp();
-                            // if (typeof initializePeepsApp === 'function') {
-                            //     initializePeepsApp();
-                            // }
-                            // Notifier.show('🏠 Volviendo al inicio', 'info');
-                        }
-                        history.pushState({ page: 'home' }, 'Home', '/');
+                        // if (contentContainer) {
+                        //     contentContainer.innerHTML = initialContent;
+                        //     initializePeepsApp();
+                        //     // if (typeof initializePeepsApp === 'function') {
+                        //     //     initializePeepsApp();
+                        //     // }
+                        //     // Notifier.show('🏠 Volviendo al inicio', 'info');
+                        // }
+                        // history.pushState({ page: 'home' }, 'Home', '/');
                     }
                 // Prototipado:
                 // } else if (!this.classList.contains('search-btn')) {
@@ -457,3 +525,65 @@ const initializePeepsApp = () => {
 };
 
 document.addEventListener('DOMContentLoaded', initializePeepsApp);
+
+// Experimentacion de codigo para el registro de usuarios
+// Inicio:
+// document.addEventListener('DOMContentLoaded', () => {
+//     const btn = document.getElementById('registroSubmitBtn');
+//     const form = document.getElementById('registroForm');
+
+//     btn.addEventListener('click', async (event) => {
+//         event.preventDefault(); // 🔹 evita que se recargue la página
+
+//         const nombreCompleto = document.getElementById('nombreRegistro').value.trim();
+//         const email = document.getElementById('emailRegistro').value.trim();
+//         const contrasena = document.getElementById('passwordRegistro').value;
+//         const confirm = document.getElementById('confirmPasswordRegistro').value;
+//         const terminos = document.getElementById('terminosRegistro').checked;
+
+//         // 🔹 Validaciones básicas
+//         if (!nombreCompleto || !email || !contrasena) {
+//             alert("Por favor completa todos los campos.");
+//             return;
+//         }
+
+//         if (contrasena !== confirm) {
+//             alert("Las contraseñas no coinciden.");
+//             return;
+//         }
+
+//         if (!terminos) {
+//             alert("Debes aceptar los términos y condiciones.");
+//             return;
+//         }
+
+//         // 🔹 Envío al backend
+//         try {
+//             const res = await fetch('http://localhost:8080/api/usuarios/registro', {
+//                 method: 'POST',
+//                 headers: { 'Content-Type': 'application/json' },
+//                 body: JSON.stringify({
+//                     nombreCompleto,  // ← debe coincidir con tu modelo Java
+//                     email,
+//                     contrasena
+//                 })
+//             });
+
+//             const data = await res.json();
+
+//             if (res.ok) {
+//                 alert("✅ Registro exitoso");
+//                 form.reset();
+//                 const modal = bootstrap.Modal.getInstance(document.getElementById('registroModal'));
+//                 modal.hide();
+//             } else {
+//                 alert("⚠️ " + (data.error || "Error al registrar"));
+//             }
+
+//         } catch (error) {
+//             console.error(error);
+//             alert("❌ Error de conexión con el servidor.");
+//         }
+//     });
+// });
+// Fin

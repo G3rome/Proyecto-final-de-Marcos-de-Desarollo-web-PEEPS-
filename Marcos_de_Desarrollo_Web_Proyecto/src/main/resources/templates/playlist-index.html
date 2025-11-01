@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Playlist</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
 <div th:fragment="playlistContent">
     <section class="playlist-section">
         <h2 class="text-center fw-bold mb-5">Mi Playlist</h2>
@@ -5,7 +15,7 @@
         <div class="playlist-container">
             <!-- Columna Izquierda -->
             <div class="playlist-left">
-                <button class="btn-crear">+ Crear Nueva Playlist</button>
+                <button class="btn-crear">Crear Nueva Playlist</button>
 
                 <div class="carrusel">
                     <div class="carrusel-item"><img src="/images/playlist1.jpg" alt="Playlist 1"></div>
@@ -29,3 +39,5 @@
         </div>
     </section>
 </div>
+</body>
+</html>
