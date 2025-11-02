@@ -1,36 +1,3 @@
-const cancionesMock = [
-    { title: "AM Remix", artist: "Nio Garcia x J Balvin x Bad Bunny", cover: "/images/AM Remix.jpg", src: "/audio/AM Remix.mp3" },
-    { title: "Bohemian Rhapsody", artist: "Queen", cover: "/images/Bohemian Rhapsody.jpg", src: "/audio/Bohemian Rhapsody.mp3" },
-    { title: "cabellos blancos", artist: "Carmencita Lara", cover: "/images/cabellos blancos.jpg", src: "/audio/cabellos blancos.mp3" },
-    { title: "carta al cielo", artist: "Lucha Reyes", cover: "/images/carta al cielo.jpg", src: "/audio/carta al cielo.mp3" },
-    { title: "Chillax", artist: "Farruko", cover: "/images/Chillax.jpg", src: "/audio/Chillax.mp3" },
-    { title: "Con Altura", artist: "J Balvin x Rosalía", cover: "/images/Con Altura.jpg", src: "/audio/Con Altura.mp3" },
-    { title: "Dakiti", artist: "Bad Bunny", cover: "/images/Dakiti.jpg", src: "/audio/Dakiti.mp3" },
-    { title: "Despechá", artist: "Rosalia", cover: "/images/Despechá.jpg", src: "/audio/Despechá.mp3" },
-    { title: "DtMF", artist: "Bad Bunny", cover: "/images/DtMF.jpg", src: "/audio/DtMF.mp3" },
-    { title: "Ella y Yo", artist: "Aventura (Ft. Don Omar)", cover: "/images/Ella y Yo.jpg", src: "/audio/Ella y Yo.mp3" },
-    { title: "Felices los 4", artist: "Maluma", cover: "/images/Felices los 4.jpg", src: "/audio/Felices los 4.mp3" },
-    { title: "Hawái", artist: "Maluma", cover: "/images/Hawái.jpg", src: "/audio/Hawái.mp3" },
-    { title: "La Alergia", artist: "Donny Caballero", cover: "/images/La Alergia.jpg", src: "/audio/La Alergia.mp3" },
-    { title: "La Botella", artist: "Justin Quiles & Maluma", cover: "/images/La Botella.jpg", src: "/audio/La Botella.mp3" },
-    { title: "La Cancion", artist: "Bad Bunny & J Balvin", cover: "images/La Canción.jpg", src: "/audio/La Canción.mp3" },
-    { title: "Lo Pasado, Pasado", artist: "José José", cover: "/images/Lo Pasado, Pasado.jpg", src: "/audio/Lo Pasado, Pasado.mp3" },
-    { title: "Me Porto Bonito", artist: "Bad Bunny", cover: "images/Me Porto Bonito.jpg", src: "audio/Me Porto Bonito.mp3" },
-    { title: "Me Rehúso", artist: "Danny Ocean", cover: "/images/Me Rehúso.jpg", src: "/audio/Me Rehúso.mp3" },
-    { title: "Monotonía", artist: "Shakira", cover: "/images/Monotonía.jpg", src: "/audio/Monotonía.mp3" },
-    { title: "Ojitos Lindos", artist: "Bad Bunny & Bomba Estéreo", cover: "/images/Ojitos Lindos.jpg", src: "/audio/Ojitos Lindos.mp3" },
-    { title: "Otro Trago", artist: "Darell & Sech", cover: "/images/Otro Trago.jpg", src: "/audio/Otro Trago.mp3" },
-    { title: "Pa Mi (Remix)", artist: "Alex, Dimelo Flow & Rafa Pabón", cover: "/images/Pa Mi (Remix).jpg", src: "/audio/Pa Mi (Remix).mp3" },
-    { title: "Pareja del Año", artist: "Myke Towers & Sebastián Yatra", cover: "/images/Pareja del Año.jpg", src: "/audio/Pareja del Año.mp3" },
-    { title: "Qué Más Pues", artist: "J Balvin & Maria Becerra", cover: "/images/Qué Más Pues.jpg", src: "/audio/Qué Más Pues.mp3" },
-    { title: "Salió el Sol", artist: "Don Omar", cover: "/images/Salió el Sol.jpg", src: "/audio/Salió el Sol.mp3" },
-    { title: "Sunset", artist: "Farruko", cover: "/images/Sunset.jpg", src: "/audio/Sunset.mp3" },
-    { title: "Tacones Rojos", artist: "Sebastián Yatra", cover: "/images/Tacones Rojos.jpg", src: "/audio/Tacones Rojos.mp3" },
-    { title: "Tal Vez", artist: "Paulo Londra", cover: "/images/Tal Vez.jpg", src: "/audio/Tal Vez.mp3" },
-    { title: "Tití Me Preguntó", artist: "Bad Bunny", cover: "/images/Tití Me Preguntó.jpg", src: "/audio/Tití Me Preguntó.mp3" },
-    { title: "Todo De Ti", artist: "Rauw Alejandro", cover: "/images/Todo De Ti.jpg", src: "/audio/Todo De Ti.mp3" },
-    { title: "Volví", artist: "Aventura & Bad Bunny", cover: "/images/Volví.jpg", src: "/audio/Volví.mp3" },
-];
 
 const Utils = {
     isValidEmail: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
@@ -88,20 +55,22 @@ const Auth = {
     handleRegistro: async () => {
         const form = Utils.qs('#registroForm');
         if (!Validation.validateForm(form)) return Notifier.show('Por favor corrige los errores.', 'danger');
-        const formData = { 
-            nombreCompleto: Utils.qs('#nombreRegistro').value, 
-            email: Utils.qs('#emailRegistro').value, 
-            contrasena: Utils.qs('#passwordRegistro').value };
+        const formData = {
+            nombreCompleto: Utils.qs('#nombreRegistro').value,
+            email: Utils.qs('#emailRegistro').value,
+            contrasena: Utils.qs('#passwordRegistro').value
+        };
         await Auth._handleAuthRequest('/api/usuarios/registro', formData, form);
     },
 
     handleLogin: async () => {
         const form = Utils.qs('#loginForm');
         if (!Validation.validateForm(form)) return Notifier.show('Por favor corrige los errores.', 'danger');
-        const formData = { 
-            email: Utils.qs('#emailLogin').value, 
-            contrasena: Utils.qs('#passwordLogin').value, 
-            recordar: Utils.qs('#recordarLogin').checked };
+        const formData = {
+            email: Utils.qs('#emailLogin').value,
+            contrasena: Utils.qs('#passwordLogin').value,
+            recordar: Utils.qs('#recordarLogin').checked
+        };
         await Auth._handleAuthRequest('/api/usuarios/login', formData, form);
     },
 
@@ -115,7 +84,6 @@ const Auth = {
     cerrarSesion: () => {
         Auth.clearUser();
         Notifier.show('¡Sesión cerrada!', 'info');
-        Player.stop();
         setTimeout(() => UI.restoreInitialState(), 1000);
     }
 };
@@ -123,7 +91,7 @@ const Auth = {
 const UI = {
     updateForLoggedInUser: (usuario) => {
         console.log('Actualizando UI para usuario logueado');
-        Utils.qs('.hero-title').textContent = `¡Bienvenido ${usuario.nombre}!`;
+        Utils.qs('.hero-title').textContent = `¡Bienvenido ${usuario.nombreCompleto}!`;
         Utils.qs('.hero-subtitle').textContent = 'Radio felicidad 88.9 FM - Tu música favorita te espera';
         const headerAuth = Utils.qs('#headerAuthButtons');
         headerAuth.innerHTML = `<button class="btn-custom-outline" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>`;
@@ -187,37 +155,51 @@ const UI = {
 
     // Modificacion: Ajuste de funcionalidad para la mejora de navegación en la barra lateral
     // Inicio:
-   setupSidebarNavigation: () => {
+    setupSidebarNavigation: () => {
         const contentContainer = Utils.qs('#mainDynamicContent');
         // Guardamos el contenido inicial (vista Home) para poder restaurarlo luego
         const initialContent = contentContainer ? contentContainer.innerHTML : '';
 
         // Función auxiliar para manejar elementos dentro del fragmento Playlist
         const initInjectedPlaylistUI = () => {
-        const volverBtn = Utils.qs('.btn-volver', contentContainer);
+            const volverBtn = Utils.qs('.btn-volver', contentContainer);
             if (volverBtn) {
-                volverBtn.addEventListener('click', (e) => {
-                    
-                    // En caso de error, prevenimos el comportamiento por defecto
-                    e.preventDefault();
-                
-                    // Restauramos el contenido inicial (Home)
-                    if (contentContainer) contentContainer.innerHTML = initialContent;
-                    Notifier.show('🏠 Volviendo al inicio', 'info');
+            }
+            const crearBtn = Utils.qs('.btn-crear', contentContainer);
+            if (crearBtn) {
+                crearBtn.addEventListener('click', async () => {
+                    //Usamos 'prompt' para pedir el nombre
+                    const nombre = prompt("Ingresa el nombre de tu nueva playlist:");
 
-                    // Re-inicializar componentes o scripts del home
-                    if (typeof initializePeepsApp === 'function') {
-                    initializePeepsApp();
+                    if (nombre && nombre.trim() !== "") {
+                        try {
+                            //Llamamos a la nueva API que activamos en el backend
+                            const response = await fetch('/api/playlist/crear', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ nombre: nombre }) // Enviamos nombre
+                            });
+
+                            if (!response.ok) throw new Error('No se pudo crear la playlist');
+
+                            const nuevaPlaylist = await response.json();
+                            Notifier.show(`Playlist "${nuevaPlaylist.nombre}" creada!`, 'success');
+
+                            //Añadimos la nueva playlist al carrusel al instante
+                            const carrusel = Utils.qs('.carrusel', contentContainer);
+                            if (carrusel) {
+                                const newItem = document.createElement('div');
+                                newItem.className = 'carrusel-item';
+                                // Usamos una imagen por defecto
+                                newItem.innerHTML = `<img src="/images/playlist1.jpg" alt="${nuevaPlaylist.nombre}">`;
+                                carrusel.appendChild(newItem);
+                            }
+                        } catch (error) {
+                            Notifier.show(error.message, 'danger');
+                        }
                     }
                 });
             }
-
-            // Ejemplo: al hacer click en una playlist-card, mostrar mensaje
-            Utils.qsa('.playlist-card', contentContainer).forEach(card => {
-                card.addEventListener('click', () => {
-                Notifier.show(`🎧 Abriendo ${card.querySelector('h5')?.textContent || ''}`, 'info');
-                });
-            });
         };
 
         // Listener para cada ítem del sidebar
@@ -225,50 +207,50 @@ const UI = {
             item.addEventListener('click', function (e) {
                 // Prevenimos la navegación por defecto
                 e.preventDefault();
-        
+
                 // Cambiar visualmente la selección
                 Utils.qsa('.sidebar .nav-item').forEach(i => i.classList.remove('active'));
-        
+
                 this.classList.add('active');
                 const section = Utils.qs('span', this)?.textContent?.trim().toLowerCase();
                 // Insercion de animacion de despliegue:
                 if (section === 'playlist') {
-                    
+
                     const contentContainer = Utils.qs('#mainDynamicContent');
 
                     // Animación de salida
                     contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
                     contentContainer.style.opacity = 0;
                     contentContainer.style.transform = "translateY(15px)";
-                    
-                   setTimeout(() => {
+
+                    setTimeout(() => {
                         fetch('/playlist', {
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
                         })
-                    
-                        .then(response => response.text())
-                
-                        .then(html => {
-                            if (contentContainer) {
-                                contentContainer.innerHTML = html;
 
-                                // Animación de entrada
-                                contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
-                                contentContainer.style.opacity = 1;
-                                contentContainer.style.transform = "translateY(0)";
+                            .then(response => response.text())
 
-                                // Actualiza la URL sin recargar
-                                history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
+                            .then(html => {
+                                if (contentContainer) {
+                                    contentContainer.innerHTML = html;
 
-                                // Re-inicializa la UI interna (botón volver, etc.)
-                                initInjectedPlaylistUI();
-                            }
-                        })
-                        
-                        .catch(error => {
-                            console.error('Error cargando Playlist:', error);
-                            Notifier.show('Error al cargar Playlist 😢', 'danger');
-                        });
+                                    // Animación de entrada
+                                    contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+                                    contentContainer.style.opacity = 1;
+                                    contentContainer.style.transform = "translateY(0)";
+
+                                    // Actualiza la URL sin recargar
+                                    history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
+
+                                    // Re-inicializa la UI interna (botón volver, etc.)
+                                    initInjectedPlaylistUI();
+                                }
+                            })
+
+                            .catch(error => {
+                                console.error('Error cargando Playlist:', error);
+                                Notifier.show('Error al cargar Playlist 😢', 'danger');
+                            });
                     }, 300); // Espera que acabe la animación de salida
 
                     // Experimentacion de codigo:
@@ -279,52 +261,22 @@ const UI = {
                     // const contentContainer = Utils.qs('#mainDynamicContent');
                     // if (contentContainer) {
                     //     contentContainer.innerHTML = html;
-                        // Notifier.show('Página de Playlist cargada correctamente 🎵', 'success');
-                        // Actualiza la URL sin recargar
+                    // Notifier.show('Página de Playlist cargada correctamente 🎵', 'success');
+                    // Actualiza la URL sin recargar
                     //     history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
                     // }
                     // })
-                    
+
                     // .catch(error => {
                     //     console.error('Error cargando Playlist:', error);
                     //     Notifier.show('Error al cargar Playlist 😢', 'danger');
                     // });
                 } else if (section === 'inicio' || section === 'home') {
-                        
-                        const contentContainer = Utils.qs('#mainDynamicContent');
-
-                        contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
-                        contentContainer.style.opacity = 0;
-                        contentContainer.style.transform = "translateY(15px)";
-
-                         setTimeout(() => {
-                            if (contentContainer) {
-                                // Restauramos la vista inicial
-                                contentContainer.innerHTML = initialContent;
-
-                                // Re-inicializar scripts del Home
-                                if (typeof initializePeepsApp === 'function') {
-                                    initializePeepsApp();
-                                }
-
-                                // Animación de entrada
-                                contentContainer.style.opacity = 1;
-                                contentContainer.style.transform = "translateY(0)";
-                            }
-                            history.pushState({ page: 'home' }, 'Home', '/');
-                        }, 300);
-                        // Experimientacion de animacion de salida:
-                        // Restauramos la vista inicial
-                        // if (contentContainer) {
-                        //     contentContainer.innerHTML = initialContent;
-                        //     initializePeepsApp();
-                        //     // if (typeof initializePeepsApp === 'function') {
-                        //     //     initializePeepsApp();
-                        //     // }
-                        //     // Notifier.show('🏠 Volviendo al inicio', 'info');
-                        // }
-                        // history.pushState({ page: 'home' }, 'Home', '/');
-                    }
+                    // Solución simple: Recarga la página para volver al inicio.
+                    // Esto asegura que Thymeleaf y el HomeController vuelvan a 
+                    // cargar todos los datos de la base de datos correctamente.
+                    window.location.href = '/';
+                }
                 // Prototipado:
                 // } else if (!this.classList.contains('search-btn')) {
                 //     Notifier.show(`Navegando a ${section}`, 'info');
@@ -386,6 +338,23 @@ const Validation = {
     }
 };
 
+//Reproductor de música
+function playSong(id) {
+    const url = `/music/reproductor?id=${id}`;
+    window.location.href = url;
+}
+
+function initHomePageListeners() {
+    document.querySelectorAll('.song-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            if (e.target.closest('.btn-add-to-playlist')) {
+                return;
+            }
+            const id = item.getAttribute('data-id');
+            playSong(id);
+        });
+    });
+}
 
 const Search = {
     currentSong: null,
@@ -394,30 +363,30 @@ const Search = {
     _createSongItem: (song) => {
         const item = document.createElement("div");
         item.classList.add("song-item");
+
+        // Añadimos los data-attributes, igual que en Thymeleaf
+        // Necesitamos esto para que el listener sepa QUÉ canción es
+        item.setAttribute('data-id', song.id);
+
         item.innerHTML = `
-            <img src="${song.cover}" alt="${song.title}" class="cover-thumb">
+                        <img src="${song.cover}" alt="${song.titulo}" class="cover-thumb"> 
             <div class="song-info">
-                <h5>${song.title}</h5>
-                <small>${song.artist}</small>
+                                <h5>${song.titulo}</h5> 
+                                <small>${song.artista}</small> 
             </div>
             <div class="song-actions">
-                <button class="play-btn"><i class="fas fa-play"></i></button>
-                <button class="add-btn"><i class="fas fa-plus"></i></button>
+                <button class="btn-add-to-playlist" data-id="${song.id}">
+                    <i class="fas fa-plus"></i>
+                </button>
             </div>
         `;
 
-        item.querySelector(".play-btn").addEventListener("click", (e) => {
+
+
+        item.addEventListener("click", (e) => {
             e.stopPropagation();
-            if (Search.currentSong === song.src && !Search.audioPlayer.paused) {
-                Search.audioPlayer.pause();
-                e.currentTarget.innerHTML = `<i class="fas fa-play"></i>`;
-            } else {
-                Search.audioPlayer.src = song.src;
-                Search.audioPlayer.play();
-                Search.currentSong = song.src;
-                Utils.qsa("#searchResults .play-btn").forEach(btn => btn.innerHTML = `<i class="fas fa-play"></i>`);
-                e.currentTarget.innerHTML = `<i class="fas fa-pause"></i>`;
-            }
+            // (5) Llamamos a la función "global" playSong
+            playSong(song.id);
         });
         return item;
     },
@@ -425,7 +394,7 @@ const Search = {
     _filterSongs: async () => {
         const query = Utils.qs("#searchInput").value.toLowerCase().trim();
         const resultsContainer = Utils.qs("#searchResults");
-        resultsContainer.innerHTML = ""; 
+        resultsContainer.innerHTML = "";
         if (!query) return;
 
         try {
@@ -445,14 +414,7 @@ const Search = {
 
             filtradas.forEach(c => {
 
-                const songCompatible = {
-                    title: c.titulo,
-                    artist: c.artista,
-                    cover: c.cover,
-                    src: c.src
-                };
-
-                const item = Search._createSongItem(songCompatible);
+                const item = Search._createSongItem(c);
 
                 resultsContainer.appendChild(item);
 
@@ -501,20 +463,7 @@ const initializePeepsApp = () => {
     UI.setupEventListeners();
     Validation.setupFormValidations();
     Search.init();
-
-    //Reproductor de música
-    function playSong(id) {
-        const url = `/music/reproductor?id=${id}`;
-        window.location.href = url;
-    }
-
-    //Para la lista
-    document.querySelectorAll('.song-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const id = item.getAttribute('data-id');
-            playSong(id);
-        });
-    });
+    initHomePageListeners();
 
     const user = Auth.getUser();
     if (user) {
@@ -523,6 +472,111 @@ const initializePeepsApp = () => {
         UI.restoreInitialState();
     }
 };
+
+// Esta función abre el modal
+async function handleAddSongClick(e) {
+    const addButton = e.target.closest('.btn-add-to-playlist');
+    if (!addButton) return;
+
+    e.stopPropagation();
+
+    const cancionId = addButton.dataset.id;
+    if (!cancionId) return;
+
+    const modalElement = document.getElementById('addToPlaylistModal');
+    const modalList = document.getElementById('playlist-modal-list');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+    //Guardamos el ID de la canción en el modal
+    modalElement.dataset.cancionId = cancionId;
+    modalList.innerHTML = '<p>Cargando playlists...</p>';
+
+    try {
+        //Llamamos a la NUEVA API para obtener las playlists
+        const response = await fetch('/api/playlists');
+        if (!response.ok) throw new Error('No se pudieron cargar las playlists');
+
+        const playlists = await response.json();
+        modalList.innerHTML = '';
+
+        if (playlists.length === 0) {
+            modalList.innerHTML = '<p>Aún no has creado ninguna playlist.</p>';
+            return;
+        }
+
+        playlists.forEach(playlist => {
+            const item = document.createElement('button');
+            item.className = 'list-group-item list-group-item-action btn-playlist-select';
+            item.textContent = playlist.nombre;
+            item.dataset.playlistId = playlist.id;
+            modalList.appendChild(item);
+        });
+
+    } catch (error) {
+        modalList.innerHTML = `<p class="text-danger">${error.message}</p>`;
+    }
+
+    //Mostramos el modal
+    modal.show();
+}
+
+// --- Listener para el Modal de Playlists (CORREGIDO) ---
+document.getElementById('playlist-modal-list').addEventListener('click', (e) => {
+    const playlistButton = e.target.closest('.btn-playlist-select');
+    if (!playlistButton) return;
+
+    // (1) Obtenemos los IDs
+    const playlistId = playlistButton.dataset.playlistId;
+
+    // (2) ¡ARREGLADO! Definimos modalElement aquí
+    const modalElement = document.getElementById('addToPlaylistModal');
+    const cancionId = modalElement.dataset.cancionId;
+
+    if (!playlistId || !cancionId) {
+        Notifier.show('Error, falta información', 'danger');
+        return;
+    }
+
+    Notifier.show('Añadiendo...', 'info');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+    // (3) Ocultamos el modal INMEDIATAMENTE
+    modal.hide();
+
+    // (4) ¡ARREGLADO! Añadimos el method, headers y body al fetch
+    fetch('/api/playlist/agregarCancion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            cancionId: parseInt(cancionId),
+            playlistId: parseInt(playlistId)
+        })
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || 'Error al añadir la canción');
+                });
+            }
+            return response.json();
+        })
+        .then(resultado => {
+            Notifier.show(`"${resultado.cancionTitulo}" añadido a "${resultado.playlistNombre}"!`, 'success');
+        })
+        .catch(error => {
+            Notifier.show(error.message, 'danger');
+        });
+});
+document.body.addEventListener('click', handleAddSongClick);
+const modalElement = document.getElementById('addToPlaylistModal');
+if (modalElement)
+    modalElement.addEventListener('hidden.bs.modal', (e) => {
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+        document.body.style.overflow = 'auto';
+    });
 
 document.addEventListener('DOMContentLoaded', initializePeepsApp);
 

@@ -1,21 +1,17 @@
--- Le decimos a MySQL que use tu base de datos
-USE peeps_db;
+-- (1) Desactiva temporalmente la revisión de llaves foráneas
+SET FOREIGN_KEY_CHECKS = 0; 
 
--- Borramos la tabla CADA VEZ que arranca, para empezar de cero (perfecto para desarrollo)
-DROP TABLE IF EXISTS canciones;
+-- (2) Limpia las tablas (TRUNCATE es más rápido que DELETE)
+-- ¡El orden importa! Primero los "hijos", luego los "padres".
+TRUNCATE TABLE playlist_canciones;
+TRUNCATE TABLE playlists;
+TRUNCATE TABLE canciones;
+-- (No truncamos la tabla 'usuarios' porque queremos que se queden guardados)
 
--- Creamos la tabla (JPA también lo hace, pero esto es más explícito)
-CREATE TABLE canciones (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    titulo VARCHAR(255),
-    artista VARCHAR(255),
-    cover VARCHAR(255),
-    src VARCHAR(255)
-);
+-- (3) Reactiva la revisión de llaves foráneas
+SET FOREIGN_KEY_CHECKS = 1;
 
--- ---------------------------------
--- INSERTAMOS TODAS LAS CANCIONES
--- ---------------------------------
+-- (4) Vuelve a insertar los datos de las canciones
 INSERT INTO canciones (titulo, artista, cover, src) VALUES 
 ('AM Remix', 'Nio Garcia x J Balvin x Bad Bunny', '/images/AM Remix.jpg', '/audio/AM Remix.mp3'),
 ('Bohemian Rhapsody', 'Queen', '/images/Bohemian Rhapsody.jpg', '/audio/Bohemian Rhapsody.mp3'),
@@ -48,3 +44,8 @@ INSERT INTO canciones (titulo, artista, cover, src) VALUES
 ('Tití Me Preguntó', 'Bad Bunny', '/images/Tití Me Preguntó.jpg', '/audio/Tití Me Preguntó.mp3'),
 ('Todo De Ti', 'Rauw Alejandro', '/images/Todo De Ti.jpg', '/audio/Todo De Ti.mp3'),
 ('Volví', 'Aventura & Bad Bunny', '/images/Volví.jpg', '/audio/Volví.mp3');
+
+-- (5) Opcional: Puedes añadir datos de prueba para tus playlists aquí
+-- INSERT INTO playlists (nombre, usuario_id) VALUES ('Mis Favoritas', 1);
+-- INSERT INTO playlist_canciones (playlist_id, cancion_id) VALUES (1, 1); -- Añade Bohemian Rhapsody
+-- INSERT INTO playlist_canciones (playlist_id, cancion_id) VALUES (1, 2); -- Añade Otra Trago

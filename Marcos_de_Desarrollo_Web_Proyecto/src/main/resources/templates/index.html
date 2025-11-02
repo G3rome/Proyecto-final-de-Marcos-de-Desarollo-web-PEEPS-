@@ -90,7 +90,7 @@
     </div>
     <audio id="audioPlayerSearch"></audio>
 
-    <main id="mainDynamicContent" class="main-content" >
+    <main id="mainDynamicContent" class="main-content">
         <header class="top-header">
             <div class="header-right" id="headerAuthButtons">
                 <button class="btn-custom-outline" data-bs-toggle="modal" data-bs-target="#loginModal">
@@ -105,139 +105,108 @@
         <!-- Modificacion: Carga dinamica con Thymeleaf -->
         <!-- NOTA: Eliminar "mainDynamicContent" en caso de errores y dejar afuera a "page-content" en adelante -->
         <!-- Inicio: -->
-        <div id="mainDynamicContent">
-            <div class="page-content">
-                <div class="container">
-                    <section class="hero-section text-center">
-                        <h1 class="hero-title">Bienvenido a Peeps</h1>
-                        <p class="hero-subtitle">Radio felicidad 88.9 FM</p>
-                    </section>
 
-                    <section class="row justify-content-center" id="welcomeSection">
-                        <div class="col-lg-6">
-                            <div class="info-box">
-                                <h2 class="info-title">¿Eres nuevo en Peeps?</h2>
-                                <p class="info-text">Regístrate para comenzar a escuchar tus canciones favoritas</p>
-                                <p class="info-highlight">¡Únete a nuestra comunidad!</p>
-                            </div>
+        <div class="page-content">
+            <div class="container">
+                <section class="hero-section text-center">
+                    <h1 class="hero-title">Bienvenido a Peeps</h1>
+                    <p class="hero-subtitle">Radio felicidad 88.9 FM</p>
+                </section>
+
+                <section class="row justify-content-center" id="welcomeSection">
+                    <div class="col-lg-6">
+                        <div class="info-box">
+                            <h2 class="info-title">¿Eres nuevo en Peeps?</h2>
+                            <p class="info-text">Regístrate para comenzar a escuchar tus canciones favoritas</p>
+                            <p class="info-highlight">¡Únete a nuestra comunidad!</p>
                         </div>
-                    </section>
+                    </div>
+                </section>
 
-                    <section class="row justify-content-center" id="rankingSection">
-                        <div class="col-lg-8">
-                            <div class="info-box">
-                                <h2 class="info-title text-center mb-4 fw-bold">Ranking de Canciones</h2>
-                                <div class="list-group ranking-canciones">
-                                    <!--Cancion 1-->
-                                    <div class="list-group-item d-flex align-items-center ranking-item">
-                                        <span class="rank-number">1</span>
-                                        <img src="images/Bohemian Rhapsody.jpg" alt="Bohemian Rhapsody"
-                                            class="cancion-img">
-                                        <div class="ms-3 flex-grow-1">
-                                            <h5 class="mb-0">Bohemian Rhapsody</h5>
-                                            <small class="text-muted">Queen</small>
-                                        </div>
-                                        <span class="text-muted">5:59</span>
+                <section class="row justify-content-center" id="rankingSection">
+                    <div class="col-lg-8">
+                        <div class="info-box">
+                            <h2 class="info-title text-center mb-4 fw-bold">Ranking de Canciones</h2>
+                            <div class="list-group ranking-canciones">
+                                <div th:each="cancion, iterStat : ${ranking}"
+                                    class="list-group-item d-flex align-items-center ranking-item song-item"
+                                    th:data-id="${cancion.id}">
+
+                                    <span class="rank-number" th:text="${iterStat.count}">1</span>
+                                    <img th:src="@{${cancion.cover}}" ... class="cancion-img">
+                                    <div class="ms-3 flex-grow-1">
+                                        <h5 ... th:text="${cancion.titulo}">Nombre Canción</h5>
+                                        <small ... th:text="${cancion.artista}">Artista</small>
                                     </div>
-                                    <!--Cancion 2-->
-                                    <div class="list-group-item d-flex align-items-center ranking-item">
-                                        <span class="rank-number">2</span>
-                                        <img src="images/Otro Trago.jpg" alt="Otro Trago" class="cancion-img">
-                                        <div class="ms-3 flex-grow-1">
-                                            <h5 class="mb-0">Otro Trago</h5>
-                                            <small class="text-muted">Sech</small>
-                                        </div>
-                                        <span class="text-muted">3:50</span>
-                                    </div>
-                                    <!--Cancion 3-->
-                                    <div class="list-group-item d-flex align-items-center ranking-item">
-                                        <span class="rank-number">3</span>
-                                        <img src="images/Tal Vez.jpg" alt="Tal Vez" class="cancion-img">
-                                        <div class="ms-3 flex-grow-1">
-                                            <h5 class="mb-0">Tal Vez</h5>
-                                            <small class="text-muted">Paulo Londra</small>
-                                        </div>
-                                        <span class="text-muted">4:31</span>
-                                    </div>
-                                    <!--Cancion 4-->
-                                    <div class="list-group-item d-flex align-items-center ranking-item">
-                                        <span class="rank-number">4</span>
-                                        <img src="images/Pa Mi (Remix).jpg" alt="Pa Mi (Remix)" class="cancion-img">
-                                        <div class="ms-3 flex-grow-1">
-                                            <h5 class="mb-0">Pa Mi (Remix)</h5>
-                                            <small class="text-muted">Dalex</small>
-                                        </div>
-                                        <span class="text-muted">6:01</span>
-                                    </div>
-                                    <!--Cancion 5-->
-                                    <div class="list-group-item d-flex align-items-center ranking-item">
-                                        <span class="rank-number">5</span>
-                                        <img src="images/Lo Pasado, Pasado.jpg" alt="Lo Pasado, Pasado"
-                                            class="cancion-img">
-                                        <div class="ms-3 flex-grow-1">
-                                            <h5 class="mb-0">Lo Pasado, Pasado</h5>
-                                            <small class="text-muted">José José</small>
-                                        </div>
-                                        <span class="text-muted">4:11</span>
+
+                                    <div class="song-actions ms-auto">
+                                        <button class="btn-add-to-playlist" th:data-id="${cancion.id}">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </section>
-                    <!--Lista de Canciones -->
-                    <div class="row mt-4 d-none" id="listaCanciones">
-                        <div class="col-lg-4 col-md-6 song-list-column">
-                            <h3 class="mb-3">Lista de Canciones</h3>
-
-                            <ul class="list-group">
-                                <li class="list-group-item d-flex align-items-center song-item"
-                                    th:each="cancion : ${canciones}" th:data-id="${cancion.id}"
-                                    th:data-title="${cancion.titulo}" th:data-artist="${cancion.artista}"
-                                    th:data-src="${cancion.src}" th:data-cover="${cancion.cover}">
-
-                                    <img th:src="@{${cancion.cover}}" class="cover-thumb me-2" alt="Cover">
-                                    <span th:text="${cancion.titulo} + ' - ' + ${cancion.artista}"></span>
-                                </li>
-                            </ul>
-
-                        </div>
                     </div>
+                </section>
+                <!--Lista de Canciones -->
+                <div class="row mt-4 d-none" id="listaCanciones">
+                    <div class="col-lg-4 col-md-6 song-list-column">
+                        <h3 class="mb-3">Lista de Canciones</h3>
 
-                    </section>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex align-items-center song-item"
+                                th:each="cancion : ${canciones}" th:data-id="${cancion.id}">
+                                <img th:src="@{${cancion.cover}}" class="cover-thumb me-2" alt="Cover">
+                                <span th:text="${cancion.titulo} + ' - ' + ${cancion.artista}"
+                                    class="flex-grow-1"></span>
 
-                    <div id="playerBar" class="player-bar d-none">
-                        <img id="playerCover" src="" alt="cover">
-                        <div class="song-info">
-                            <h6 id="playerTitle"></h6>
-                            <small id="playerArtist"></small>
-                        </div>
-                        <audio id="audioPlayer" controls></audio>
+                                <div class="song-actions ms-auto">
+                                    <button class="btn-add-to-playlist" th:data-id="${cancion.id}">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+
                     </div>
-
-                    <section class="row justify-content-center" id="authCards">
-                        <div class="col-lg-4 col-md-6 mb-4">
-                            <div class="card-custom">
-                                <div class="card-icon">+</div>
-                                <h3 class="card-title">Regístrate</h3>
-                                <p class="card-description">Crea tu cuenta y comienza a explorar Peeps</p>
-                                <a href="#" class="btn btn-custom-primary" data-bs-toggle="modal"
-                                    data-bs-target="#registroModal">+ Crear Cuenta</a>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 mb-4">
-                            <div class="card-custom">
-                                <div class="card-icon">→</div>
-                                <h3 class="card-title">Inicia Sesión</h3>
-                                <p class="card-description">Accede a tu cuenta existente</p>
-                                <a href="#" class="btn btn-custom-outline" data-bs-toggle="modal"
-                                    data-bs-target="#loginModal">→ Iniciar Sesión</a>
-                            </div>
-                        </div>
-                    </section>
                 </div>
-            </div>
 
+                </section>
+
+                <div id="playerBar" class="player-bar d-none">
+                    <img id="playerCover" src="" alt="cover">
+                    <div class="song-info">
+                        <h6 id="playerTitle"></h6>
+                        <small id="playerArtist"></small>
+                    </div>
+                    <audio id="audioPlayer" controls></audio>
+                </div>
+
+                <section class="row justify-content-center" id="authCards">
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card-custom">
+                            <div class="card-icon">+</div>
+                            <h3 class="card-title">Regístrate</h3>
+                            <p class="card-description">Crea tu cuenta y comienza a explorar Peeps</p>
+                            <a href="#" class="btn btn-custom-primary" data-bs-toggle="modal"
+                                data-bs-target="#registroModal">+ Crear Cuenta</a>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card-custom">
+                            <div class="card-icon">→</div>
+                            <h3 class="card-title">Inicia Sesión</h3>
+                            <p class="card-description">Accede a tu cuenta existente</p>
+                            <a href="#" class="btn btn-custom-outline" data-bs-toggle="modal"
+                                data-bs-target="#loginModal">→ Iniciar Sesión</a>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
+
+
         <!-- Fin -->
 
 
@@ -321,6 +290,22 @@
         </div>
     </div>
 
+    <div class="modal fade" id="addToPlaylistModal" tabindex="-1" aria-labelledby="playlistModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="playlistModalLabel">Añadir a Playlist</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Selecciona una playlist para añadir la canción:</p>
+                    <div class="list-group" id="playlist-modal-list">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="terminosModal" tabindex="-1" aria-labelledby="terminosModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">

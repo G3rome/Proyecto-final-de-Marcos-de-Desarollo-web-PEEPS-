@@ -21,8 +21,6 @@ public class LoginController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    private List<Map<String, Object>> usuarios = new ArrayList<>();
-    private Long nextId = 1L;
 
     @GetMapping("/")
     public ResponseEntity<Map<String, Object>> inicio() {
@@ -114,8 +112,9 @@ public class LoginController {
         Map<String, Object> respuesta = new HashMap<>();
         respuesta.put("mensaje", "Sirve tu conexion ");
         respuesta.put("estado", "OK");
-        respuesta.put("usuariosRegistrados", usuarios.size());
+        respuesta.put("usuariosRegistrados", usuarioRepository.count());
         respuesta.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.ok(respuesta);
     }
 }
+    
