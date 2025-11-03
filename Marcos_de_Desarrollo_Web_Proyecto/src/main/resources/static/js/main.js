@@ -1,4 +1,3 @@
-
 const Utils = {
     isValidEmail: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
     qs: (selector, parent = document) => parent.querySelector(selector),
@@ -91,8 +90,10 @@ const Auth = {
 const UI = {
     updateForLoggedInUser: (usuario) => {
         console.log('Actualizando UI para usuario logueado');
-        Utils.qs('.hero-title').textContent = `¡Bienvenido ${usuario.nombreCompleto}!`;
-        Utils.qs('.hero-subtitle').textContent = 'Radio felicidad 88.9 FM - Tu música favorita te espera';
+        const heroTitle = Utils.qs('.hero-title');
+        if (heroTitle) heroTitle.textContent = `¡Bienvenido ${usuario.nombreCompleto}!`;
+        const heroSubtitle = Utils.qs('.hero-subtitle');
+        if (heroSubtitle) heroSubtitle.textContent = 'Radio felicidad 88.9 FM - Tu música favorita te espera';
         const headerAuth = Utils.qs('#headerAuthButtons');
         headerAuth.innerHTML = `<button class="btn-custom-outline" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>`;
         Utils.qs('#logoutBtn').addEventListener('click', Auth.cerrarSesion);
@@ -171,34 +172,40 @@ const UI = {
                     //Usamos 'prompt' para pedir el nombre
                     const nombre = prompt("Ingresa el nombre de tu nueva playlist:");
 
-                    if (nombre && nombre.trim() !== "") {
+                    if (!nombre || nombre.trim() === "") return;
+
                         try {
                             //Llamamos a la nueva API que activamos en el backend
                             const response = await fetch('/api/playlist/crear', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ nombre: nombre }) // Enviamos nombre
+                                body: JSON.stringify({ nombre })
                             });
 
                             if (!response.ok) throw new Error('No se pudo crear la playlist');
 
                             const nuevaPlaylist = await response.json();
+
                             Notifier.show(`Playlist "${nuevaPlaylist.nombre}" creada!`, 'success');
 
                             //Añadimos la nueva playlist al carrusel al instante
                             const carrusel = Utils.qs('.carrusel', contentContainer);
-                            if (carrusel) {
+                            
+                            if (!carrusel) return;
+
                                 const newItem = document.createElement('div');
-                                newItem.className = 'carrusel-item';
-                                // Usamos una imagen por defecto
-                                newItem.innerHTML = `<img src="/images/playlist1.jpg" alt="${nuevaPlaylist.nombre}">`;
-                                carrusel.appendChild(newItem);
-                            }
+                                
+                                addPlaylistToCarrusel(nuevaPlaylist);
+                                
+                                // Actualiza botones de scroll
+                                updateScrollButtons();
+                                updatePlaylistCount();
+                            
                         } catch (error) {
                             Notifier.show(error.message, 'danger');
                         }
                     }
-                });
+                );
             }
         };
 
@@ -242,8 +249,12 @@ const UI = {
                                     // Actualiza la URL sin recargar
                                     history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
 
-                                    // Re-inicializa la UI interna (botón volver, etc.)
-                                    initInjectedPlaylistUI();
+                                    // Esperamos un poco a que el DOM de la playlist esté totalmente renderizado
+                                    setTimeout(() => {
+                                        initInjectedPlaylistUI();  
+                                        initCarruselScroll();
+                                        updateScrollButtons();
+                                    }, 300);
                                 }
                             })
 
@@ -253,34 +264,9 @@ const UI = {
                             });
                     }, 300); // Espera que acabe la animación de salida
 
-                    // Experimentacion de codigo:
-                    //     headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    // })
-                    // .then(response => response.text())
-                    // .then(html => {
-                    // const contentContainer = Utils.qs('#mainDynamicContent');
-                    // if (contentContainer) {
-                    //     contentContainer.innerHTML = html;
-                    // Notifier.show('Página de Playlist cargada correctamente 🎵', 'success');
-                    // Actualiza la URL sin recargar
-                    //     history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
-                    // }
-                    // })
-
-                    // .catch(error => {
-                    //     console.error('Error cargando Playlist:', error);
-                    //     Notifier.show('Error al cargar Playlist 😢', 'danger');
-                    // });
                 } else if (section === 'inicio' || section === 'home') {
-                    // Solución simple: Recarga la página para volver al inicio.
-                    // Esto asegura que Thymeleaf y el HomeController vuelvan a 
-                    // cargar todos los datos de la base de datos correctamente.
                     window.location.href = '/';
                 }
-                // Prototipado:
-                // } else if (!this.classList.contains('search-btn')) {
-                //     Notifier.show(`Navegando a ${section}`, 'info');
-                // }
             });
         });
     }
@@ -380,8 +366,6 @@ const Search = {
                 </button>
             </div>
         `;
-
-
 
         item.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -567,6 +551,7 @@ document.getElementById('playlist-modal-list').addEventListener('click', (e) => 
             Notifier.show(error.message, 'danger');
         });
 });
+
 document.body.addEventListener('click', handleAddSongClick);
 const modalElement = document.getElementById('addToPlaylistModal');
 if (modalElement)
@@ -580,64 +565,144 @@ if (modalElement)
 
 document.addEventListener('DOMContentLoaded', initializePeepsApp);
 
-// Experimentacion de codigo para el registro de usuarios
-// Inicio:
-// document.addEventListener('DOMContentLoaded', () => {
-//     const btn = document.getElementById('registroSubmitBtn');
-//     const form = document.getElementById('registroForm');
+function addPlaylistToCarrusel(playlist) {
+    
+    const carrusel = document.querySelector('.carrusel');
 
-//     btn.addEventListener('click', async (event) => {
-//         event.preventDefault(); // 🔹 evita que se recargue la página
+    const item = document.createElement('div');
+    
+    item.className = 'carrusel-item';
+    
+    item.innerHTML = `<img src="/images/playlist1.jpg" alt="${playlist.nombre}">`;
 
-//         const nombreCompleto = document.getElementById('nombreRegistro').value.trim();
-//         const email = document.getElementById('emailRegistro').value.trim();
-//         const contrasena = document.getElementById('passwordRegistro').value;
-//         const confirm = document.getElementById('confirmPasswordRegistro').value;
-//         const terminos = document.getElementById('terminosRegistro').checked;
+    // Agregamos al final pero animando desde la izquierda
+    carrusel.appendChild(item);
 
-//         // 🔹 Validaciones básicas
-//         if (!nombreCompleto || !email || !contrasena) {
-//             alert("Por favor completa todos los campos.");
-//             return;
-//         }
+    // Animación de aparición suave
+    item.style.opacity = 0;
+    
+    item.style.transform = 'translateX(-20px)';
+    
+    setTimeout(() => {
+        item.style.transition = 'all 0.5s ease';
+        item.style.opacity = 1;
+        item.style.transform = 'translateX(0)';
+        updateScrollButtons();
+    }, 50);
 
-//         if (contrasena !== confirm) {
-//             alert("Las contraseñas no coinciden.");
-//             return;
-//         }
+    // Aseguramos que todo el carrusel esté centrado al inicio
+    carrusel.scrollLeft = 0;
 
-//         if (!terminos) {
-//             alert("Debes aceptar los términos y condiciones.");
-//             return;
-//         }
+    updatePlaylistCount();
+}
 
-//         // 🔹 Envío al backend
-//         try {
-//             const res = await fetch('http://localhost:8080/api/usuarios/registro', {
-//                 method: 'POST',
-//                 headers: { 'Content-Type': 'application/json' },
-//                 body: JSON.stringify({
-//                     nombreCompleto,  // ← debe coincidir con tu modelo Java
-//                     email,
-//                     contrasena
-//                 })
-//             });
+function updateScrollButtons() {
+    const carrusel = document.querySelector('.carrusel');
+    const btnLeft = document.querySelector('.scroll-btn.left');
+    const btnRight = document.querySelector('.scroll-btn.right');
 
-//             const data = await res.json();
+    
+    if (!carrusel || !btnLeft || !btnRight) return;
 
-//             if (res.ok) {
-//                 alert("✅ Registro exitoso");
-//                 form.reset();
-//                 const modal = bootstrap.Modal.getInstance(document.getElementById('registroModal'));
-//                 modal.hide();
-//             } else {
-//                 alert("⚠️ " + (data.error || "Error al registrar"));
-//             }
+    const items = carrusel.querySelectorAll('.carrusel-item');
 
-//         } catch (error) {
-//             console.error(error);
-//             alert("❌ Error de conexión con el servidor.");
-//         }
-//     });
-// });
+    // Mostrar botones solo si hay más de 3 items o si el contenido realmente se desborda
+    if (items.length > 3 && carrusel.scrollWidth > carrusel.clientWidth + 5) {
+        btnLeft.classList.add('show');
+        btnRight.classList.add('show');
+    } else {
+        btnLeft.classList.remove('show');
+        btnRight.classList.remove('show');
+    }
+}
+
+function updatePlaylistCount() {
+    const countEl = document.querySelector('.playlist-count');
+    if (!countEl) return; // <--- evita el error si no existe
+
+    const total = document.querySelectorAll('.carrusel-item').length;
+    countEl.textContent = `${total} playlist${total !== 1 ? 's' : ''}`;
+}
+
+function initCarruselScroll() {
+    const carrusel = document.querySelector('.carrusel');
+    const btnLeft = document.querySelector('.scroll-btn.left');
+    const btnRight = document.querySelector('.scroll-btn.right');
+
+    if (!carrusel || !btnLeft || !btnRight) return;
+
+    const itemWidth = carrusel.querySelector('.carrusel-item')?.offsetWidth || 200;
+
+    // Botón de retroceder
+    btnLeft.addEventListener('click', () => {
+        carrusel.scrollBy({ left: -itemWidth, behavior: 'smooth' });
+    });
+
+    // Botón de avanzar
+    btnRight.addEventListener('click', () => {
+        carrusel.scrollBy({ left: itemWidth, behavior: 'smooth' });
+    });
+
+    // Actualiza visibilidad de botones según scroll
+    const updateButtons = () => {
+        const maxScrollLeft = carrusel.scrollWidth - carrusel.clientWidth;
+        btnLeft.style.display = carrusel.scrollLeft > 0 ? 'block' : 'none';
+        btnRight.style.display = carrusel.scrollLeft < maxScrollLeft - 1 ? 'block' : 'none';
+    };
+
+    // Escuchar scroll y resize
+    carrusel.addEventListener('scroll', updateButtons);
+    window.addEventListener('resize', updateButtons);
+    // Inicializa visibilidad
+    updateButtons();
+}
+
+// --- Detectar cuándo se carga la sección Playlist ---
+function initInjectedPlaylistUI() {
+    const volverBtn = Utils.qs('.btn-volver');
+    const crearBtn = Utils.qs('.btn-crear');
+
+    // Si existe botón crear
+    if (crearBtn) {
+        crearBtn.addEventListener('click', async () => {
+            const nombre = prompt("Ingresa el nombre de tu nueva playlist:");
+            if (!nombre || nombre.trim() === "") return;
+
+            try {
+                const response = await fetch('/api/playlist/crear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre })
+                });
+
+                if (!response.ok) throw new Error('No se pudo crear la playlist');
+                const nuevaPlaylist = await response.json();
+
+                Notifier.show(`Playlist "${nuevaPlaylist.nombre}" creada!`, 'success');
+                addPlaylistToCarrusel(nuevaPlaylist);
+                updateScrollButtons();
+            } catch (error) {
+                Notifier.show(error.message, 'danger');
+            }
+        });
+    }
+    
+    // Esperamos a que el carrusel y los botones existan antes de iniciar el scroll
+    const waitForCarrusel = setInterval(() => {
+        const carrusel = document.querySelector('.carrusel');
+        const btnLeft = document.querySelector('.scroll-btn.left');
+        const btnRight = document.querySelector('.scroll-btn.right');
+
+        if (carrusel && btnLeft && btnRight) {
+            clearInterval(waitForCarrusel);
+            initCarruselScroll(); // ✅ ahora sí se ejecuta correctamente
+            updateScrollButtons();
+        }
+    }, 150); // revisa cada 150ms hasta que cargue
+}   
+
+// Actualiza botones al cargar
+window.addEventListener('load', updateScrollButtons);
+window.addEventListener('resize', updateScrollButtons);
+
 // Fin

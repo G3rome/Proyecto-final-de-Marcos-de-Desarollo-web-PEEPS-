@@ -38,6 +38,16 @@ body.modal-open {
     overflow: hidden;
 }
 
+html,
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    /* Evita scroll horizontal */
+    overscroll-behavior: none;
+    /* Evita rebotes en algunos navegadores */
+}
+
 /* ====================================================================
    layout y diseño de los sidebars
 ==================================================================== */
@@ -824,4 +834,98 @@ body.modal-open {
     .playlist-container {
         flex-direction: column;
     }
+}
+
+.playlist-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Centra todo el contenido horizontalmente */
+    gap: 15px;
+}
+
+.playlist-header {
+    display: flex;
+    justify-content: center;
+    /* Centra el botón */
+    width: 100%;
+}
+
+.playlist-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Centra botón y carrusel */
+    gap: 10px;
+}
+
+.carrusel-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    overflow: hidden;
+}
+
+.carrusel {
+    display: flex;
+    gap: 10px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding: 10px 0;
+    justify-content: flex-start;
+}
+
+/* Animación para nuevas playlists */
+.carrusel-item {
+    opacity: 1;
+    transform: scale(0.95);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    overflow: hidden;
+}
+
+.carrusel-item img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.carrusel-item.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) scale(0.8);
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    padding: 8px 12px;
+    cursor: pointer;
+    pointer-events: auto;
+    /* display: none; */
+}
+
+.scroll-btn.left {
+    left: 0;
+}
+
+.scroll-btn.right {
+    right: 0;
+}
+
+.scroll-btn.show {
+    /* display: block; */
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+    pointer-events: auto;
+}
+
+.scroll-btn:hover {
+    transform: translateY(-50%) scale(1.1);
 }

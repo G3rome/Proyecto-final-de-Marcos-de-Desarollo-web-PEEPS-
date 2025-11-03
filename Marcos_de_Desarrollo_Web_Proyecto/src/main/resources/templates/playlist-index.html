@@ -5,20 +5,33 @@
     <div th:fragment="playlistContent">
         <section class="playlist-section">
             <h2 class="text-center fw-bold mb-5">Mi Playlist</h2>
+
             <div class="playlist-container">
-                <div class="playlist-left">
-                    <button class="btn-crear" id="btnCrearPlaylist">Crear Nueva Playlist</button>
-                    <div class="carrusel">
-                        <div class="carrusel-item" th:each="playlist : ${playlists}">
-                            <img src="/images/playlist1.jpg" th:alt="${playlist.nombre}">
+                <!-- Carrusel y botón de crear -->
+                <div class="playlist-top">
+                    <div class="playlist-header">
+                        <button class="btn-crear" id="btnCrearPlaylist">Crear Nueva Playlist</button>
+                    </div>
+
+                    <div class="carrusel-wrapper">
+                        <div class="carrusel">
+                            <div class="carrusel-item" th:each="playlist : ${playlists}">
+                                <img src="/images/playlist1.jpg" th:alt="${playlist.nombre}">
+                            </div>
                         </div>
+                        <!-- Boton de desplazamiento izquierdo: -->
+                        <button class="scroll-btn left"><i class="fas fa-chevron-left"></i></button>
+                        <!-- Boton de desplazamiento derecho -->
+                        <button class="scroll-btn right"><i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
 
-                <div class="playlist-right">
+                <!-- Canciones que te gustaron -->
+                <div class="playlist-bottom mt-4">
                     <h4 class="fw-semibold mb-3 text-center">Canciones que te gustaron</h4>
                     <ul class="liked-songs">
                         <li>Bohemian Rhapsody - Queen</li>
+                        <!-- Más canciones -->
                     </ul>
                 </div>
             </div>
