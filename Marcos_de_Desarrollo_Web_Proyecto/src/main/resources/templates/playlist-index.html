@@ -16,7 +16,11 @@
                     <div class="carrusel-wrapper">
                         <div class="carrusel">
                             <div class="carrusel-item" th:each="playlist : ${playlists}">
-                                <img src="/images/playlist1.jpg" th:alt="${playlist.nombre}">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-LE1lHlVN0O_OzrLqxxwO4DZ4w1UZWLppeQ&s"
+                                    th:alt="${playlist.nombre}">
+                                <button class="btn-delete" th:attr="data-id=${playlist.id}" title="Eliminar Playlist">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
                             </div>
                         </div>
                         <!-- Boton de desplazamiento izquierdo: -->
@@ -26,13 +30,36 @@
                     </div>
                 </div>
 
-                <!-- Canciones que te gustaron -->
                 <div class="playlist-bottom mt-4">
                     <h4 class="fw-semibold mb-3 text-center">Canciones que te gustaron</h4>
-                    <ul class="liked-songs">
-                        <li>Bohemian Rhapsody - Queen</li>
-                        <!-- Más canciones -->
-                    </ul>
+                    <div class="liked-carousel">
+                        <div class="liked-track">
+                            <div class="liked-item"><img src="/images/Bohemian Rhapsody.jpg" alt="Bohemian Rhapsody">
+                            </div>
+                            <div class="liked-item"><img src="/images/AM Remix.jpg" alt="AM Remix"></div>
+                            <div class="liked-item"><img
+                                    src="https://s.mxmcdn.net/images-storage/albums4/5/3/9/7/3/3/48337935_500_500.jpg"
+                                    alt="Blinding Lights"></div>
+                            <div class="liked-item"><img
+                                    src="https://i.scdn.co/image/ab67616d0000b2732172b607853fa89cefa2beb4"
+                                    alt="Levitating"></div>
+                            <div class="liked-item"><img
+                                    src="https://images.genius.com/86dcab92e27599f8556b5b8f21932449.1000x1000x1.png"
+                                    alt="Shape of You"></div>
+                            <div class="liked-item"><img src="https://i.ytimg.com/vi/e-fA-gBCkj0/maxresdefault.jpg"
+                                    alt="Locked Out of Heaven"></div>
+                            <div class="liked-item"><img
+                                    src="https://akamai.sscdn.co/uploadfile/letras/albuns/f/3/6/8/973661625168157.jpg"
+                                    alt="Thriller"></div>
+                            <div class="liked-item"><img
+                                    src="https://i1.sndcdn.com/artworks-000489245394-tptkbg-t1080x1080.jpg"
+                                    alt="Can't help falling in love"></div>
+                            <div class="liked-item"><img
+                                    src="https://i1.sndcdn.com/artworks-j84eS4yIVsFyJ5Lj-s7wrbg-t500x500.jpg"
+                                    alt="Feel so Close"></div>
+                            <!-- Puedes añadir más imágenes -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

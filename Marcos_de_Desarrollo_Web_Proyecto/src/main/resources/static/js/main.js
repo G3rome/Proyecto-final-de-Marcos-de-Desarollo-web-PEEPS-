@@ -252,9 +252,11 @@ const UI = {
                                     // Esperamos un poco a que el DOM de la playlist esté totalmente renderizado
                                     setTimeout(() => {
                                         initInjectedPlaylistUI();  
-                                        initCarruselScroll();
-                                        updateScrollButtons();
+                                    
+                                    initCarruselScroll();
+                                    updateScrollButtons();
                                     }, 300);
+                                    
                                 }
                             })
 
@@ -366,6 +368,8 @@ const Search = {
                 </button>
             </div>
         `;
+
+
 
         item.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -573,7 +577,7 @@ function addPlaylistToCarrusel(playlist) {
     
     item.className = 'carrusel-item';
     
-    item.innerHTML = `<img src="/images/playlist1.jpg" alt="${playlist.nombre}">`;
+    item.innerHTML = `<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-LE1lHlVN0O_OzrLqxxwO4DZ4w1UZWLppeQ&s" alt="${playlist.nombre}">`;
 
     // Agregamos al final pero animando desde la izquierda
     carrusel.appendChild(item);
@@ -595,6 +599,7 @@ function addPlaylistToCarrusel(playlist) {
 
     updatePlaylistCount();
 }
+
 
 function updateScrollButtons() {
     const carrusel = document.querySelector('.carrusel');
@@ -686,7 +691,6 @@ function initInjectedPlaylistUI() {
             }
         });
     }
-    
     // Esperamos a que el carrusel y los botones existan antes de iniciar el scroll
     const waitForCarrusel = setInterval(() => {
         const carrusel = document.querySelector('.carrusel');
@@ -700,6 +704,128 @@ function initInjectedPlaylistUI() {
         }
     }, 150); // revisa cada 150ms hasta que cargue
 }   
+
+function initLikedSongsCarousel() {
+    const track = document.querySelector('.liked-track');
+    if (!track) return;
+
+    // Clonamos todo el contenido una vez más para efecto de loop continuo
+    const clone = track.cloneNode(true);
+    track.parentElement.appendChild(clone);
+
+    // Doble pista para scroll infinito
+    clone.classList.add('liked-track', 'clone');
+}
+
+async function initLikedSongsCarousel() {
+    const container = document.querySelector('.liked-carousel');
+    if (!container) return;
+
+    try {
+        const res = await fetch('/music/api/canciones');
+        if (!res.ok) throw new Error("Error al cargar las canciones");
+        const canciones = await res.json();
+
+        const track = document.createElement('div');
+        track.classList.add('liked-track');
+
+        canciones.forEach(c => {
+            const item = document.createElement('div');
+            item.classList.add('liked-item');
+            item.innerHTML = `
+                <img src="data:image/jpeg;base64,${c.cover}" alt="${c.titulo}">
+                <div class="liked-overlay">
+                    <p>${c.titulo}</p>
+                    <span>${c.artista}</span>
+                </div>
+            `;
+            track.appendChild(item);
+        });
+
+        // Duplicar el track para hacer un efecto continuo
+        const clone = track.cloneNode(true);
+        container.innerHTML = '';
+        container.appendChild(track);
+        container.appendChild(clone);
+
+        // --- Animación automática del carrusel ---
+        let scrollPosition = 0;
+        function autoScroll() {
+            scrollPosition += 1; // velocidad
+            if (scrollPosition >= track.scrollWidth / 2) {
+                scrollPosition = 0; // reinicio
+            }
+            container.scrollLeft = scrollPosition;
+            requestAnimationFrame(autoScroll);
+        }
+        requestAnimationFrame(autoScroll);
+
+    } catch (err) {
+        console.error("Fallo al cargar canciones:", err);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const playlistBtn = document.getElementById('playlistBtn');
+    const popup = document.getElementById('playlistAccessPopup');
+    const playlistSection = document.querySelector('.playlist-section');
+    const loginBtn = document.getElementById('popupLoginBtn');
+    const registerBtn = document.getElementById('popupRegisterBtn');
+
+    const isLoggedIn = () => !!window.localStorage.getItem('usuario');
+
+    // Al hacer clic en el botón Playlist
+    playlistBtn?.addEventListener('click', (e) => {
+        if (!isLoggedIn()) {
+            e.preventDefault(); // Evita que cambie de vista
+            popup.style.display = 'flex'; // 🔹 Muestra el popup de bloqueo
+            playlistSection?.classList.add('blocked');
+        } else {
+            // Si está logueado, simplemente deja que vaya a la vista playlist
+            console.log("Usuario logueado, accediendo a playlist...");
+        }
+    });
+
+    loginBtn?.addEventListener('click', () => {
+        popup.style.display = 'none';
+        playlistSection?.classList.remove('blocked');
+        // Abre el modal de login existente
+        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+    });
+
+    // Click fuera del popup
+    popup.addEventListener('click', (e) => {
+        // Solo si el click es en el overlay, no dentro del contenido
+        if (e.target === popup) {
+            closeAndRedirect();
+        }
+    });
+
+    registerBtn?.addEventListener('click', () => {
+        popup.style.display = 'none';
+        playlistSection?.classList.remove('blocked');
+        const registerModal = new bootstrap.Modal(document.getElementById('registroModal'));
+        registerModal.show();
+    });
+
+    function closePopup() {
+        popup.style.display = 'none';
+        document.body.classList.remove('blurred');
+    }
+
+    ['loginModal', 'registroModal'].forEach(modalId => {
+        const modalEl = document.getElementById(modalId);
+        if (modalEl) {
+            modalEl.addEventListener('click', (e) => {
+                if (e.target === modalEl) {
+                    bootstrap.Modal.getInstance(modalEl)?.hide();
+                    window.location.href = '/';
+                }
+            }); 
+        }
+    });
+});
 
 // Actualiza botones al cargar
 window.addEventListener('load', updateScrollButtons);
