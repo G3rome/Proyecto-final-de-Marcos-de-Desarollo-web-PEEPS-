@@ -1,24 +1,28 @@
 package com.example.demo.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.ui.Model;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.example.demo.repository.PlaylistRepository;
-import com.example.demo.model.Playlist;
 import java.util.List;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.http.ResponseEntity;
-
-import com.example.demo.repository.CancionRepository;
-import com.example.demo.repository.PlaylistCancionRepository;
-import com.example.demo.model.Cancion;
-import com.example.demo.model.PlaylistCancion;
 import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.example.demo.model.Cancion;
+import com.example.demo.model.Playlist;
+import com.example.demo.model.PlaylistCancion;
+import com.example.demo.repository.CancionRepository;
+import com.example.demo.repository.PlaylistCancionRepository;
+import com.example.demo.repository.PlaylistRepository;
+
+import jakarta.transaction.Transactional;
 
 @Controller
 public class playlistController {
@@ -103,7 +107,7 @@ public class playlistController {
         nuevaConexion.setCancion(cancion);
 
         // Guarda la conexión
-        playlistCancionRepository.save(nuevaConexion);
+        playlistCancionRepository.saveAndFlush(nuevaConexion);
 
         // Devuelve una respuesta exitosa
         Map<String, String> respuesta = Map.of(
@@ -116,8 +120,49 @@ public class playlistController {
     @GetMapping("/api/playlists")
     @ResponseBody
     public List<Playlist> obtenerMisPlaylists() {
-        //Esto devuelve TODAS las playlists
+        // Esto devuelve TODAS las playlists
         return playlistRepository.findAll();
+    }
+
+    @GetMapping("/api/playlist/{id}/canciones")
+    @ResponseBody
+    @Transactional
+    public ResponseEntity<List<Cancion>> obtenerCancionesDePlaylist(@PathVariable Long id) {
+
+        Optional<Playlist> optPlaylist = playlistRepository.findById(id);
+        if (optPlaylist.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<PlaylistCancion> conexiones = playlistCancionRepository.findByPlaylistIdWithCancion(id);
+        List<Cancion> canciones = conexiones.stream()
+                .map(PlaylistCancion::getCancion)
+                .toList();
+
+        return ResponseEntity.ok(canciones);
+    }
+
+    @GetMapping("/playlist/{id}/ver")
+    public String verCancionesDePlaylist(@PathVariable Long id, Model model) {
+
+        Optional<Playlist> optPlaylist = playlistRepository.findById(id);
+        if (optPlaylist.isEmpty()) {
+            model.addAttribute("canciones", List.of());
+            model.addAttribute("playlistNombre", "Playlist no encontrada");
+            return "playlist-table :: tabla"; // Fragmento Thymeleaf con tabla vacía
+        }
+
+        Playlist playlist = optPlaylist.get();
+        List<PlaylistCancion> conexiones = playlistCancionRepository.findByPlaylistIdWithCancion(id);
+        List<Cancion> canciones = conexiones.stream()
+                .map(PlaylistCancion::getCancion)
+                .toList();
+
+        model.addAttribute("canciones", canciones);
+        model.addAttribute("playlistNombre", playlist.getNombre());
+
+        // Devuelve solo el fragmento con la tabla
+        return "playlist-table :: tabla";
     }
 
 }

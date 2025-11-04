@@ -16,8 +16,7 @@
                     <div class="carrusel-wrapper">
                         <div class="carrusel">
                             <div class="carrusel-item" th:each="playlist : ${playlists}">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-LE1lHlVN0O_OzrLqxxwO4DZ4w1UZWLppeQ&s"
-                                    th:alt="${playlist.nombre}">
+                                <img src="" th:alt="${playlist.nombre}">
                                 <button class="btn-delete" th:attr="data-id=${playlist.id}" title="Eliminar Playlist">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
@@ -61,7 +60,22 @@
                         </div>
                     </div>
                 </div>
+                <div class="modal fade" id="viewPlaylistModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Playlist</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Las canciones se cargan aquí dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
+            <!-- <div class="modal-backdrop fade show"></div> -->
         </section>
     </div>
 </body>

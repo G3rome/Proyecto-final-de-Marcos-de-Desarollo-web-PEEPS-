@@ -1022,7 +1022,7 @@ body {
 /* Fondo negro bloqueante */
 .playlist-section.blocked {
     position: relative;
-    pointer-events: none;
+    /* pointer-events: none; */
     /* Evita que se haga click dentro */
     filter: brightness(0.1);
     /* Oscurece la sección */
@@ -1140,3 +1140,14 @@ body {
 .blurred {
     overflow: hidden;
 }
+
+/* .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    opacity: 0.5;
+} */
