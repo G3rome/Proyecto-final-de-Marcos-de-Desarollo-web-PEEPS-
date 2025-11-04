@@ -783,6 +783,41 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
+.playlist-overlay {
+    position: absolute;
+    /* Absoluto respecto al contenedor */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    /* Para centrar el botón */
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    /* Opcional: sombra negra semitransparente */
+    opacity: 0;
+    /* Oculto por defecto */
+    transition: opacity 0.3s ease;
+}
+
+.carrusel-item:hover .playlist-overlay {
+    opacity: 1;
+    /* Aparece al pasar el mouse */
+}
+
+.btn-view-playlist {
+    z-index: 10;
+    /* Asegura que esté sobre todo */
+}
+
+.carrusel-item {
+    position: relative;
+    /* Contenedor padre relativo */
+    display: inline-block;
+    /* o flex según tu carrusel */
+}
+
 .carrusel-item:hover {
     transform: scale(1.08);
 }
@@ -1140,14 +1175,3 @@ body {
 .blurred {
     overflow: hidden;
 }
-
-/* .modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1050;
-    width: 100vw;
-    height: 100vh;
-    background-color: #000;
-    opacity: 0.5;
-} */

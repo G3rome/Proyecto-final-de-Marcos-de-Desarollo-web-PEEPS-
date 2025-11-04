@@ -15,8 +15,9 @@
 
                     <div class="carrusel-wrapper">
                         <div class="carrusel">
-                            <div class="carrusel-item" th:each="playlist : ${playlists}">
-                                <img src="" th:alt="${playlist.nombre}">
+                            <div class="carrusel-item" th:each="playlist : ${playlists}" th:attr="data-playlist-id=${playlist.id}">
+                                <img src="https://cdn-icons-png.flaticon.com/512/9280/9280598.png"
+                                    th:alt="${playlist.nombre}">
                                 <button class="btn-delete" th:attr="data-id=${playlist.id}" title="Eliminar Playlist">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
@@ -67,7 +68,7 @@
                                 <h5 class="modal-title">Playlist</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
-                            <div class="modal-body">
+                            <div class="modal-body" id="playlist-modal-body">
                                 <!-- Las canciones se cargan aquí dinámicamente -->
                             </div>
                         </div>

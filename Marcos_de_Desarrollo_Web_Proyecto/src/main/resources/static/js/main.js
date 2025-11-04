@@ -175,7 +175,6 @@ const UI = {
                     if (!nombre || nombre.trim() === "") return;
 
                         try {
-                            //Llamamos a la nueva API que activamos en el backend
                             const response = await fetch('/api/playlist/crear', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -185,10 +184,7 @@ const UI = {
                             if (!response.ok) throw new Error('No se pudo crear la playlist');
 
                             const nuevaPlaylist = await response.json();
-
                             Notifier.show(`Playlist "${nuevaPlaylist.nombre}" creada!`, 'success');
-
-                            //Añadimos la nueva playlist al carrusel al instante
                             const carrusel = Utils.qs('.carrusel', contentContainer);
                             
                             if (!carrusel) return;
@@ -196,7 +192,6 @@ const UI = {
                                 const newItem = document.createElement('div');
                                 
                                 addPlaylistToCarrusel(nuevaPlaylist);
-                                
                                 // Actualiza botones de scroll
                                 updateScrollButtons();
                                 updatePlaylistCount();
@@ -249,7 +244,6 @@ const UI = {
                                     // Actualiza la URL sin recargar
                                     history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
 
-                                    // Esperamos un poco a que el DOM de la playlist esté totalmente renderizado
                                     setTimeout(() => {
                                         initInjectedPlaylistUI();  
                                         addViewButtonsToExistingPlaylists();
@@ -266,7 +260,6 @@ const UI = {
                                 Notifier.show('Error al cargar Playlist 😢', 'danger');
                             });
                     }, 300); // Espera que acabe la animación de salida
-
                 } else if (section === 'inicio' || section === 'home') {
                     window.location.href = '/';
                 }
@@ -329,6 +322,11 @@ const Validation = {
 
 //Reproductor de música
 function playSong(id) {
+    if (!id) {
+        console.warn('ID de canción inválido:', id);
+        Notifier.show('No se pudo reproducir la canción. ID inválido.', 'danger');
+        return;
+    }
     const url = `/music/reproductor?id=${id}`;
     window.location.href = url;
 }
@@ -336,10 +334,15 @@ function playSong(id) {
 function initHomePageListeners() {
     document.querySelectorAll('.song-item').forEach(item => {
         item.addEventListener('click', (e) => {
-            if (e.target.closest('.btn-add-to-playlist')) {
+            if (e.target.closest('.btn-add-to-playlist')) return;
+            
+            const id = item.getAttribute('data-id');
+            
+            if (!id) {
+                console.warn('Elemento sin data-id', item);
+                Notifier.show('No se pudo reproducir la canción', 'danger');
                 return;
             }
-            const id = item.getAttribute('data-id');
             playSong(id);
         });
     });
@@ -366,7 +369,6 @@ function addViewButtonsToExistingPlaylists() {
     });
 }
 
-
 const Search = {
     currentSong: null,
     audioPlayer: null,
@@ -375,8 +377,6 @@ const Search = {
         const item = document.createElement("div");
         item.classList.add("song-item");
 
-        // Añadimos los data-attributes, igual que en Thymeleaf
-        // Necesitamos esto para que el listener sepa QUÉ canción es
         item.setAttribute('data-id', song.id);
 
         item.innerHTML = `
@@ -394,7 +394,6 @@ const Search = {
 
         item.addEventListener("click", (e) => {
             e.stopPropagation();
-            // (5) Llamamos a la función "global" playSong
             playSong(song.id);
         });
         return item;
@@ -407,7 +406,6 @@ const Search = {
         if (!query) return;
 
         try {
-            //Llamamos a la API de Spring Boot
             const response = await fetch(`/music/api/buscar?query=${encodeURIComponent(query)}`);
 
             if (!response.ok) {
@@ -422,11 +420,8 @@ const Search = {
             }
 
             filtradas.forEach(c => {
-
                 const item = Search._createSongItem(c);
-
                 resultsContainer.appendChild(item);
-
                 setTimeout(() => item.classList.add("show"), 50);
             });
 
@@ -460,7 +455,6 @@ const Search = {
                 Search.currentSong = null;
             }
         });
-
         searchInput?.addEventListener("input", Search._filterSongs);
     }
 };
@@ -495,12 +489,10 @@ async function handleAddSongClick(e) {
     const modalList = document.getElementById('playlist-modal-list');
     const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
 
-    //Guardamos el ID de la canción en el modal
     modalElement.dataset.cancionId = cancionId;
     modalList.innerHTML = '<p>Cargando playlists...</p>';
 
     try {
-        //Llamamos a la NUEVA API para obtener las playlists
         const response = await fetch('/api/playlists');
         if (!response.ok) throw new Error('No se pudieron cargar las playlists');
 
@@ -523,8 +515,6 @@ async function handleAddSongClick(e) {
     } catch (error) {
         modalList.innerHTML = `<p class="text-danger">${error.message}</p>`;
     }
-
-    //Mostramos el modal
     modal.show();
 }
 
@@ -591,37 +581,26 @@ if (modalElement)
 document.addEventListener('DOMContentLoaded', initializePeepsApp);
 
 function addPlaylistToCarrusel(playlist) {
-    
-    if (!playlist.id) {
-        console.warn('Playlist sin ID:', playlist);
-        return; // <-- evita crear botón con ID undefined
-    }
-
-
     const carrusel = document.querySelector('.carrusel');
-
     const item = document.createElement('div');
 
-    item.dataset.playlistId = playlist.id; 
-    
+    const playlistId = playlist.id ?? `temp-${Date.now()}`;
+
+    item.dataset.playlistId = playlistId;
     item.className = 'carrusel-item';
     
     item.innerHTML = `
-        <img src="" alt="${playlist.nombre}">
+        <img src="https://cdn-icons-png.flaticon.com/512/9280/9280598.png" alt="${playlist.nombre}">
         <div class="playlist-overlay">
-            <button class="btn btn-sm btn-primary btn-view-playlist" data-playlist-id="${playlist.id}">Ver</button>
+            <button class="btn btn-sm btn-primary btn-view-playlist" data-playlist-id="${playlistId}">Ver</button>
         </div>
         <p class="playlist-name">${playlist.nombre}</p>
     `;
 
-    // Agregamos al final pero animando desde la izquierda
     carrusel.appendChild(item);
-
-    // Animación de aparición suave
     item.style.opacity = 0;
-    
     item.style.transform = 'translateX(-20px)';
-    
+
     setTimeout(() => {
         item.style.transition = 'all 0.5s ease';
         item.style.opacity = 1;
@@ -629,10 +608,8 @@ function addPlaylistToCarrusel(playlist) {
         updateScrollButtons();
     }, 50);
 
-    // Aseguramos que todo el carrusel esté centrado al inicio
     carrusel.scrollLeft = 0;
     updatePlaylistCount();
-
 }
 
 async function showPlaylistSongsModal(playlistId, playlistNombre) {
@@ -640,55 +617,55 @@ async function showPlaylistSongsModal(playlistId, playlistNombre) {
     const modalBody = modalEl.querySelector('.modal-body');
     const modalTitle = modalEl.querySelector('.modal-title');
 
-    // Set título y contenido inicial
     modalTitle.textContent = `Playlist: ${playlistNombre}`;
-    modalBody.innerHTML = '<p>Cargando canciones...</p>';
+    
+    modalBody.innerHTML = 'Cargando canciones...'; 
 
     try {
         const response = await fetch(`/api/playlist/${playlistId}/canciones`);
         if (!response.ok) throw new Error('No se pudieron cargar las canciones');
-
         const canciones = await response.json();
 
-        if (canciones.length === 0) {
-            modalBody.innerHTML = '<p>Esta playlist está vacía.</p>';
+        if (!canciones.length) {
+            modalBody.innerHTML = '<p>No hay canciones en esta playlist.</p>';
             return;
         }
 
-        // Crear lista de canciones
-        const list = document.createElement('ul');
-        list.className = 'list-group';
-        canciones.forEach(c => {
-            const li = document.createElement('li');
-            li.className = 'list-group-item d-flex justify-content-between align-items-center';
-            li.textContent = `${c.titulo} - ${c.artista}`;
-
-            // Botón reproducir
-            const playBtn = document.createElement('button');
-            playBtn.className = 'btn btn-sm btn-outline-primary';
-            playBtn.textContent = 'Reproducir';
-            playBtn.addEventListener('click', () => playSong(c.id));
-
-            li.appendChild(playBtn);
-            list.appendChild(li);
-        });
+         // Creamos la tabla
+        const table = document.createElement('table');
+        table.className = 'table table-striped';
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Canción</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${canciones.map(c => `
+                    <tr>
+                        <td>${c.id}</td>
+                        <td>${c.cancion_id}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        `;
 
         modalBody.innerHTML = '';
-        modalBody.appendChild(list);
+        modalBody.appendChild(table)
 
     } catch (err) {
         modalBody.innerHTML = `<p class="text-danger">${err.message}</p>`;
     }
 
    const modal = new bootstrap.Modal(modalEl, {
-        backdrop: false, // click afuera cierra
-        keyboard: true  // ESC cierra
+        backdrop: false, 
+        keyboard: true  
     });
 
-    modalEl.style.zIndex = 1055; // aseguramos que esté delante
+    modalEl.style.zIndex = 1055; 
     modal.show();
 
-    // Limpieza al cerrar
     modalEl.addEventListener('hidden.bs.modal', () => {
         modalBody.innerHTML = '';
         modalEl.style.zIndex = '';
@@ -700,8 +677,6 @@ document.body.addEventListener('click', (e) => {
     if (!btn) return;
 
     const playlistItem = btn.closest('.carrusel-item');
-    if (!playlistItem) return;
-
     const playlistId = btn.dataset.playlistId || playlistItem.dataset.playlistId;
     const playlistNombre = playlistItem.querySelector('.playlist-name')?.textContent || 'Playlist';
 
@@ -715,12 +690,10 @@ function updateScrollButtons() {
     const btnLeft = document.querySelector('.scroll-btn.left');
     const btnRight = document.querySelector('.scroll-btn.right');
 
-    
     if (!carrusel || !btnLeft || !btnRight) return;
 
     const items = carrusel.querySelectorAll('.carrusel-item');
 
-    // Mostrar botones solo si hay más de 3 items o si el contenido realmente se desborda
     if (items.length > 3 && carrusel.scrollWidth > carrusel.clientWidth + 5) {
         btnLeft.classList.add('show');
         btnRight.classList.add('show');
@@ -764,55 +737,10 @@ function initCarruselScroll() {
         btnRight.style.display = carrusel.scrollLeft < maxScrollLeft - 1 ? 'block' : 'none';
     };
 
-    // Escuchar scroll y resize
     carrusel.addEventListener('scroll', updateButtons);
     window.addEventListener('resize', updateButtons);
-    // Inicializa visibilidad
     updateButtons();
 }
-
-// --- Detectar cuándo se carga la sección Playlist ---
-function initInjectedPlaylistUI() {
-    const volverBtn = Utils.qs('.btn-volver');
-    const crearBtn = Utils.qs('.btn-crear');
-
-    // Si existe botón crear
-    if (crearBtn) {
-        crearBtn.addEventListener('click', async () => {
-            const nombre = prompt("Ingresa el nombre de tu nueva playlist:");
-            if (!nombre || nombre.trim() === "") return;
-
-            try {
-                const response = await fetch('/api/playlist/crear', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre })
-                });
-
-                if (!response.ok) throw new Error('No se pudo crear la playlist');
-                const nuevaPlaylist = await response.json();
-
-                Notifier.show(`Playlist "${nuevaPlaylist.nombre}" creada!`, 'success');
-                addPlaylistToCarrusel(nuevaPlaylist);
-                updateScrollButtons();
-            } catch (error) {
-                Notifier.show(error.message, 'danger');
-            }
-        });
-    }
-    // Esperamos a que el carrusel y los botones existan antes de iniciar el scroll
-    const waitForCarrusel = setInterval(() => {
-        const carrusel = document.querySelector('.carrusel');
-        const btnLeft = document.querySelector('.scroll-btn.left');
-        const btnRight = document.querySelector('.scroll-btn.right');
-
-        if (carrusel && btnLeft && btnRight) {
-            clearInterval(waitForCarrusel);
-            initCarruselScroll();
-            updateScrollButtons();
-        }
-    }, 150); // revisa cada 150ms hasta que cargue
-}   
 
 async function initLikedSongsCarousel() {
     const container = document.querySelector('.liked-carousel');
@@ -848,9 +776,9 @@ async function initLikedSongsCarousel() {
         // --- Animación automática del carrusel ---
         let scrollPosition = 0;
         function autoScroll() {
-            scrollPosition += 1; // velocidad
+            scrollPosition += 1; 
             if (scrollPosition >= track.scrollWidth / 2) {
-                scrollPosition = 0; // reinicio
+                scrollPosition = 0; 
             }
             container.scrollLeft = scrollPosition;
             requestAnimationFrame(autoScroll);
@@ -862,83 +790,12 @@ async function initLikedSongsCarousel() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const playlistBtn = document.getElementById('playlistBtn');
-    const popup = document.getElementById('playlistAccessPopup');
-    const playlistSection = document.querySelector('.playlist-section');
-    const loginBtn = document.getElementById('popupLoginBtn');
-    const registerBtn = document.getElementById('popupRegisterBtn');
-
-    const isLoggedIn = () => !!window.localStorage.getItem('usuario');
-
-    // Al hacer clic en el botón Playlist
-    playlistBtn?.addEventListener('click', (e) => {
-        if (!isLoggedIn()) {
-            e.preventDefault(); // Evita que cambie de vista
-            popup.style.display = 'flex'; // 🔹 Muestra el popup de bloqueo
-            playlistSection?.classList.add('blocked');
-        } else {
-            // Si está logueado, simplemente deja que vaya a la vista playlist
-            console.log("Usuario logueado, accediendo a playlist...");
-        }
-    });
-
-    loginBtn?.addEventListener('click', () => {
-        popup.style.display = 'none';
-        playlistSection?.classList.remove('blocked');
-        // Abre el modal de login existente
-        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-        loginModal.show();
-    });
-
-    // Click fuera del popup
-    popup.addEventListener('click', (e) => {
-        // Solo si el click es en el overlay, no dentro del contenido
-        if (e.target === popup) {
-            closeAndRedirect();
-        }
-    });
-
-    registerBtn?.addEventListener('click', () => {
-        popup.style.display = 'none';
-        playlistSection?.classList.remove('blocked');
-        const registerModal = new bootstrap.Modal(document.getElementById('registroModal'));
-        registerModal.show();
-    });
-
-    function closePopup() {
-        popup.style.display = 'none';
-        document.body.classList.remove('blurred');
-    }
-
-    ['loginModal', 'registroModal'].forEach(modalId => {
-        const modalEl = document.getElementById(modalId);
-        if (modalEl) {
-            modalEl.addEventListener('click', (e) => {
-                if (e.target === modalEl) {
-                    bootstrap.Modal.getInstance(modalEl)?.hide();
-                    window.location.href = '/';
-                }
-            }); 
-        }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    addViewButtonsToExistingPlaylists();
-    initCarruselScroll();
-    updateScrollButtons();
-});
-
-// Función de ejemplo para cargar canciones
+// Cargar canciones
 function loadPlaylistSongs(playlistId) {
     const container = document.getElementById('playlistSongsContainer');
     container.innerHTML = `<p>Cargando canciones de la playlist ID: ${playlistId}</p>`;
-    // Aquí podrías hacer fetch a tu backend para traer las canciones
 }
 
 // Actualiza botones al cargar
 window.addEventListener('load', updateScrollButtons);
 window.addEventListener('resize', updateScrollButtons);
-
-// Fin
