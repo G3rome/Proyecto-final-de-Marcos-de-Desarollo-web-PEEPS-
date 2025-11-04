@@ -217,9 +217,13 @@ const UI = {
                 const section = Utils.qs('span', this)?.textContent?.trim().toLowerCase();
                 // Insercion de animacion de despliegue:
                 if (section === 'playlist') {
+                const usuario = Auth.getUser();
+                if (!usuario) {
+                    Notifier.show('Debes iniciar sesión para acceder a Playlist', 'warning');
+                    return; 
+                }
 
                     const contentContainer = Utils.qs('#mainDynamicContent');
-
                     // Animación de salida
                     contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
                     contentContainer.style.opacity = 0;
