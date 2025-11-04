@@ -637,15 +637,15 @@ async function showPlaylistSongsModal(playlistId, playlistNombre) {
         table.innerHTML = `
             <thead>
                 <tr>
-                    <th>Titulo</th>
-                    <th>Canción</th>
+                    <th>Cancion</th>
+                    <th>Artista</th>
                 </tr>
             </thead>
             <tbody>
                 ${canciones.map(c => `
                     <tr>
-                        <td>${c.id}</td>
-                        <td>${c.cancion_id}</td>
+                        <td>${c.titulo}</td>
+                        <td>${c.artista}</td>
                     </tr>
                 `).join('')}
             </tbody>
