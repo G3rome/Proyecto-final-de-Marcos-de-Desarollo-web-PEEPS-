@@ -1,10 +1,10 @@
-# 🎵 Proyecto "Spotify" Peeps
+# Proyecto "Spotify" Peeps
 
 **Marcos de Desarrollo Web**
 
 ---
 
-## 👥 Equipo de Desarrollo
+## Equipo de Desarrollo
 
 - **Loyola Ismael**
 - **Figueroa Luis**
@@ -13,18 +13,18 @@
 
 ---
 
-## 📋 Requisitos Previos
+##  Requisitos Previos
 
-### ☕ Java JDK
+### Java JDK
 Descargue e instale **Java JDK 17** o superior:
 - [Oracle JDK](https://www.oracle.com/java/technologies/downloads/)
 - [OpenJDK](https://openjdk.org/)
 
-### 📦 Apache Maven
+### Apache Maven
 Descargue e instale **Maven 3.8+**:
 - [Maven Official Site](https://maven.apache.org/download.cgi)
 
-### ✅ Verificación de Instalación
+### Verificación de Instalación
 
 Ejecute los siguientes comandos para verificar la instalación:
 ```bash
@@ -34,15 +34,15 @@ mvn --version
 
 ---
 
-## 🚀 Instrucciones de Configuración
+##  Instrucciones de Configuración
 
-### 1️⃣ Clonar el Repositorio
+### 1 Clonar el Repositorio
 ```bash
 git clone https://github.com/Montagfth/Repositorio-008.git
 cd Marcos_de_Desarrollo_Web_Proyecto/
 ```
 
-### 2️⃣ Instalar Dependencias
+### 2️ Instalar Dependencias
 ```bash
 mvn clean install
 ```
@@ -51,7 +51,7 @@ Este comando descargará todas las dependencias especificadas en `pom.xml`.
 
 ---
 
-## ▶️ Ejecutar el Proyecto
+## Ejecutar el Proyecto
 
 ### Opción 1: Usando Maven
 ```bash
@@ -62,11 +62,17 @@ mvn spring-boot:run
 ```bash
 mvn package
 java -jar target/nombre-del-archivo.jar
+
 ```
+### Opción 3: comando vs code
+```bash
+./mvnw spring-boot:run
+```
+
 
 ---
 
-## 🌐 Acceso a la Aplicación
+## Acceso a la Aplicación
 
 Una vez iniciado el servidor, acceda a la aplicación en:
 
@@ -79,7 +85,7 @@ Una vez iniciado el servidor, acceda a la aplicación en:
 
 ---
 
-## 📁 Estructura del Proyecto
+##  Estructura del Proyecto
 ```
 Marcos_de_Desarrollo_Web_Proyecto/
 ├── src/
@@ -93,7 +99,7 @@ Marcos_de_Desarrollo_Web_Proyecto/
 
 ---
 
-## 🛠️ Tecnologías Utilizadas
+##  Tecnologías Utilizadas
 
 - **Spring Boot** - Framework principal
 - **Maven** - Gestión de dependencias
@@ -101,12 +107,6 @@ Marcos_de_Desarrollo_Web_Proyecto/
 
 ---
 
-## 📝 Licencia
+##  Licencia
 
 Este proyecto es parte de un trabajo académico para el curso de Marcos de Desarrollo Web.
-
----
-
-## 📧 Contacto
-
-Para cualquier consulta sobre el proyecto, contacte a los miembros del equipo.
