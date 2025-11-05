@@ -154,77 +154,72 @@ const UI = {
         });
     },
 
-    // Modificacion: Ajuste de funcionalidad para la mejora de navegación en la barra lateral
-    // Inicio:
+    //Ajuste de funcionalidad para la mejora de navegación en la barra lateral
     setupSidebarNavigation: () => {
         const contentContainer = Utils.qs('#mainDynamicContent');
-        // Guardamos el contenido inicial (vista Home) para poder restaurarlo luego
-        const initialContent = contentContainer ? contentContainer.innerHTML : '';
+        const initialContent = contentContainer ?
+            contentContainer.innerHTML : '';
 
-        // Función auxiliar para manejar elementos dentro del fragmento Playlist
-        const initInjectedPlaylistUI = () => {
+        const initInjectedPlaylistUI = (contentContainer) => {
             const volverBtn = Utils.qs('.btn-volver', contentContainer);
             if (volverBtn) {
             }
             const crearBtn = Utils.qs('.btn-crear', contentContainer);
             if (crearBtn) {
                 crearBtn.addEventListener('click', async () => {
-                    //Usamos 'prompt' para pedir el nombre
                     const nombre = prompt("Ingresa el nombre de tu nueva playlist:");
 
-                    if (!nombre || nombre.trim() === "") return;
+                    if (!nombre || nombre.trim()
+                        === "") return;
 
-                        try {
-                            const response = await fetch('/api/playlist/crear', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ nombre })
-                            });
+                    try {
+                        const response = await fetch('/api/playlist/crear', {
+                            method: 'POST',
 
-                            if (!response.ok) throw new Error('No se pudo crear la playlist');
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ nombre })
+                        });
 
-                            const nuevaPlaylist = await response.json();
-                            Notifier.show(`Playlist "${nuevaPlaylist.nombre}" creada!`, 'success');
-                            const carrusel = Utils.qs('.carrusel', contentContainer);
-                            
-                            if (!carrusel) return;
 
-                                const newItem = document.createElement('div');
-                                
-                                addPlaylistToCarrusel(nuevaPlaylist);
-                                // Actualiza botones de scroll
-                                updateScrollButtons();
-                                updatePlaylistCount();
-                            
-                        } catch (error) {
-                            Notifier.show(error.message, 'danger');
-                        }
+                        if (!response.ok) throw new Error('No se pudo crear la playlist');
+
+                        const nuevaPlaylist = await response.json();
+                        Notifier.show(`Playlist "${nuevaPlaylist.nombre}" creada!`, 'success');
+
+                        const carrusel = Utils.qs('.carrusel', contentContainer);
+                        if (!carrusel) return;
+
+                        const newItem = document.createElement('div');
+
+                        addPlaylistToCarrusel(nuevaPlaylist);
+                        updateScrollButtons();
+                        updatePlaylistCount();
+
+                    } catch (error) {
+                        Notifier.show(error.message, 'danger');
                     }
+                }
                 );
             }
+            initLikedSongsCarousel(contentContainer);
         };
 
-        // Listener para cada ítem del sidebar
         Utils.qsa('.sidebar .nav-item').forEach(item => {
             item.addEventListener('click', function (e) {
-                // Prevenimos la navegación por defecto
                 e.preventDefault();
 
-                // Cambiar visualmente la selección
                 Utils.qsa('.sidebar .nav-item').forEach(i => i.classList.remove('active'));
 
                 this.classList.add('active');
                 const section = Utils.qs('span', this)?.textContent?.trim().toLowerCase();
-                // Insercion de animacion de despliegue:
                 if (section === 'playlist') {
-                const usuario = Auth.getUser();
-                if (!usuario) {
-                    Notifier.show('Debes iniciar sesión para acceder a Playlist', 'warning');
-                    return; 
-                }
+                    const usuario = Auth.getUser();
+                    if (!usuario) {
+                        Notifier.show('Debes iniciar sesión para acceder a Playlist', 'warning');
+                        return;
+                    }
 
                     const contentContainer = Utils.qs('#mainDynamicContent');
-                    // Animación de salida
                     contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
                     contentContainer.style.opacity = 0;
                     contentContainer.style.transform = "translateY(15px)";
@@ -239,38 +234,34 @@ const UI = {
                             .then(html => {
                                 if (contentContainer) {
                                     contentContainer.innerHTML = html;
-
-                                    // Animación de entrada
                                     contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
                                     contentContainer.style.opacity = 1;
                                     contentContainer.style.transform = "translateY(0)";
 
-                                    // Actualiza la URL sin recargar
                                     history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
 
                                     setTimeout(() => {
-                                        initInjectedPlaylistUI();  
+                                        initInjectedPlaylistUI(contentContainer);
                                         addViewButtonsToExistingPlaylists();
                                         initCarruselScroll();
                                         updateScrollButtons();
 
                                     }, 300);
-                                    
+
                                 }
                             })
 
                             .catch(error => {
                                 console.error('Error cargando Playlist:', error);
-                                Notifier.show('Error al cargar Playlist 😢', 'danger');
+                                Notifier.show('Error al cargar Playlist', 'danger');
                             });
-                    }, 300); // Espera que acabe la animación de salida
+                    }, 300);
                 } else if (section === 'inicio' || section === 'home') {
                     window.location.href = '/';
                 }
             });
         });
     }
-    // Fin
 };
 
 const Validation = {
@@ -338,7 +329,7 @@ function playSong(id) {
 function initHomePageListeners() {
     document.querySelectorAll('.song-item').forEach(item => {
         item.addEventListener('click', (e) => {
-            if (e.target.closest('.btn-add-to-playlist')) return;
+            if (e.target.closest('.btn-add-to-playlist') || e.target.closest('.btn-like')) return;
             
             const id = item.getAttribute('data-id');
             
@@ -479,6 +470,42 @@ const initializePeepsApp = () => {
     }
 };
 
+async function handleLikeClick(e) {
+    const likeButton = e.target.closest('.btn-like');
+    if (!likeButton) return;
+
+    e.stopPropagation(); // Evita que se active el clic de 'playSong'
+    const cancionId = likeButton.dataset.id;
+    if (!cancionId) return;
+
+    try {
+        const response = await fetch(`/music/api/cancion/${cancionId}/toggle-like`, {
+            method: 'POST'
+        });
+        
+        if (!response.ok) throw new Error('Error al actualizar like');
+        
+        const resultado = await response.json();
+        
+        // Actualizar el icono del corazón
+        const icon = likeButton.querySelector('i');
+        if (resultado.esLiked) {
+            likeButton.classList.add('liked');
+            icon.classList.remove('far'); // Quita estilo vacío
+            icon.classList.add('fas');    // Pone estilo sólido
+            Notifier.show('Añadida a "Me Gusta"', 'success');
+        } else {
+            likeButton.classList.remove('liked');
+            icon.classList.remove('fas');    // Quita estilo sólido
+            icon.classList.add('far');    // Pone estilo vacío
+            Notifier.show('Eliminada de "Me Gusta"', 'info');
+        }
+        
+    } catch (error) {
+        Notifier.show(error.message, 'danger');
+    }
+}
+
 // Esta función abre el modal
 async function handleAddSongClick(e) {
     const addButton = e.target.closest('.btn-add-to-playlist');
@@ -571,6 +598,7 @@ document.getElementById('playlist-modal-list').addEventListener('click', (e) => 
 });
 
 document.body.addEventListener('click', handleAddSongClick);
+document.body.addEventListener('click', handleLikeClick);
 
 const modalElement = document.getElementById('addToPlaylistModal');
 if (modalElement)
@@ -662,7 +690,7 @@ async function showPlaylistSongsModal(playlistId, playlistNombre) {
         modalBody.innerHTML = `<p class="text-danger">${err.message}</p>`;
     }
 
-   const modal = new bootstrap.Modal(modalEl, {
+    const modal = new bootstrap.Modal(modalEl, {
         backdrop: false, 
         keyboard: true  
     });
@@ -746,23 +774,41 @@ function initCarruselScroll() {
     updateButtons();
 }
 
-async function initLikedSongsCarousel() {
-    const container = document.querySelector('.liked-carousel');
-    if (!container) return;
+async function initLikedSongsCarousel(contentContainer) {
+    if (!contentContainer) {
+        contentContainer = document;
+    }
+
+    const container = contentContainer.querySelector('.liked-carousel');
+    if (!container) {
+        return;
+    }
+
+    const track = container.querySelector('.liked-track');
+    if (!track) {
+        console.error("Error de DOM: No se encontró '.liked-track' dentro de '.liked-carousel'.");
+        return;
+    }
+    track.innerHTML = '<p>Cargando tus "Me Gusta"...</p>';
 
     try {
-        const res = await fetch('/music/api/canciones');
-        if (!res.ok) throw new Error("Error al cargar las canciones");
-        const canciones = await res.json();
-
-        const track = document.createElement('div');
-        track.classList.add('liked-track');
+        const response = await fetch('/music/api/canciones/liked');
+        if (!response.ok) throw new Error("Error al cargar las canciones que te gustan");
+        const canciones = await response.json();
+        track.innerHTML = '';
+        if (canciones.length === 0) {
+            track.innerHTML = '<p style="padding-left: 1rem;">Aún no tienes canciones con "Me Gusta".</p>';
+            container.style.animationPlayState = 'paused';
+            return;
+        }
+        container.style.animationPlayState = 'running';
 
         canciones.forEach(c => {
             const item = document.createElement('div');
-            item.classList.add('liked-item');
+            item.className = 'liked-item';
+            item.dataset.id = c.id;
             item.innerHTML = `
-                <img src="data:image/jpeg;base64,${c.cover}" alt="${c.titulo}">
+                <img src="${c.cover}" alt="${c.titulo}">
                 <div class="liked-overlay">
                     <p>${c.titulo}</p>
                     <span>${c.artista}</span>
@@ -771,35 +817,27 @@ async function initLikedSongsCarousel() {
             track.appendChild(item);
         });
 
-        // Duplicar el track para hacer un efecto continuo
         const clone = track.cloneNode(true);
-        container.innerHTML = '';
-        container.appendChild(track);
         container.appendChild(clone);
-
-        // --- Animación automática del carrusel ---
-        let scrollPosition = 0;
-        function autoScroll() {
-            scrollPosition += 1; 
-            if (scrollPosition >= track.scrollWidth / 2) {
-                scrollPosition = 0; 
+        container.addEventListener('click', (e) => {
+            const clickedItem = e.target.closest('.liked-item');
+            if (!clickedItem) return;
+            const cancionId = clickedItem.dataset.id;
+            if (cancionId) {
+                playSong(cancionId);
             }
-            container.scrollLeft = scrollPosition;
-            requestAnimationFrame(autoScroll);
-        }
-        requestAnimationFrame(autoScroll);
+        });
 
     } catch (err) {
-        console.error("Fallo al cargar canciones:", err);
+        console.error("Fallo al cargar 'Liked Songs':", err);
+        track.innerHTML = '<p class="text-danger">Error al cargar canciones.</p>';
     }
 }
 
-// Cargar canciones
 function loadPlaylistSongs(playlistId) {
     const container = document.getElementById('playlistSongsContainer');
     container.innerHTML = `<p>Cargando canciones de la playlist ID: ${playlistId}</p>`;
 }
 
-// Actualiza botones al cargar
 window.addEventListener('load', updateScrollButtons);
 window.addEventListener('resize', updateScrollButtons);

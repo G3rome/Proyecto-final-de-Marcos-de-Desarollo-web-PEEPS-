@@ -11,4 +11,6 @@ public interface CancionRepository extends JpaRepository<Cancion, Long> {
 
 
     List<Cancion> findByTituloContainingIgnoreCaseOrArtistaContainingIgnoreCase(String titulo, String artista);
+
+    List<Cancion> findByLikedTrue();
 }

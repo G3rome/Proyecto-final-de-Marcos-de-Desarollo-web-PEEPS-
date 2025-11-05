@@ -18,8 +18,9 @@ public class Cancion {
     private String artista;
     private String cover; // Ruta a la imagen (ej. /images/Bohemian Rhapsody.jpg)
     private String src;   // Ruta al audio (ej. /audio/Bohemian Rhapsody.mp3)
+    private Boolean liked = false;
 
-  
+
     public Cancion() {
     }
 
@@ -62,5 +63,16 @@ public class Cancion {
 
     public void setSrc(String src) {
         this.src = src;
+    }
+
+    public boolean isLiked() {
+    if (this.liked == null) {
+        return false;
+    }
+    return this.liked;
+    }
+
+    public void setLiked(Boolean liked) {
+        this.liked = liked;
     }
 }

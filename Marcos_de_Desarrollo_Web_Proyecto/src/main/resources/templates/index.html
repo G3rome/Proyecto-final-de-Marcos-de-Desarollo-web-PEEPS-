@@ -143,6 +143,10 @@
                                     </div>
 
                                     <div class="song-actions ms-auto">
+                                        <button class="btn-like" th:data-id="${cancion.id}"
+                                                th:classappend="${cancion.isLiked() ? 'liked' : ''}">
+                                            <i th:class="${cancion.isLiked() ? 'fas fa-heart' : 'far fa-heart'}"></i>
+                                        </button>
                                         <button class="btn-add-to-playlist" th:data-id="${cancion.id}">
                                             <i class="fas fa-plus"></i>
                                         </button>
@@ -165,6 +169,10 @@
                                     class="flex-grow-1"></span>
 
                                 <div class="song-actions ms-auto">
+                                    <button class="btn-like" th:data-id="${cancion.id}"
+                                            th:classappend="${cancion.isLiked() ? 'liked' : ''}">
+                                        <i th:class="${cancion.isLiked() ? 'fas fa-heart' : 'far fa-heart'}"></i>
+                                    </button>
                                     <button class="btn-add-to-playlist" th:data-id="${cancion.id}">
                                         <i class="fas fa-plus"></i>
                                     </button>
