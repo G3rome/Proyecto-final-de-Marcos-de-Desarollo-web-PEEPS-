@@ -17,7 +17,6 @@ import com.example.demo.repository.UsuarioRepository;
 @CrossOrigin(origins = "*")
 public class LoginController {
 
-    // Experimentacion:
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -31,23 +30,12 @@ public class LoginController {
         return ResponseEntity.ok(respuesta);
     }
 
-    // Codfificacion original:
-    // NOTA: Borrar si hay fallos con codigo inferior
-    // @GetMapping("/usuarios")
-    // public ResponseEntity<List<Map<String, Object>>> obtenerUsuarios() {
-    // return ResponseEntity.ok(usuarios);
-    // }
-    // Experimetacion:
-    // Inicio:
     @GetMapping("/usuarios")
     public ResponseEntity<List<Usuario>> obtenerUsuarios() {
         List<Usuario> usuarios = usuarioRepository.findAll();
         return ResponseEntity.ok(usuarios);
     }
-    // Fin
 
-    // Expermimentacion-03:
-    // Inicio:
     @PostMapping("/usuarios/registro")
     public ResponseEntity<Map<String, Object>> registrarUsuario(@RequestBody Usuario datos) {
         Map<String, Object> respuesta = new HashMap<>();
@@ -57,7 +45,6 @@ public class LoginController {
             return ResponseEntity.badRequest().body(respuesta);
         }
 
-        // Validar si ya existe
         if (usuarioRepository.findByEmail(datos.getEmail()).isPresent()) {
             respuesta.put("error", "El correo ya está registrado");
             return ResponseEntity.badRequest().body(respuesta);
@@ -70,7 +57,6 @@ public class LoginController {
         respuesta.put("usuario", usuarioGuardado);
         return ResponseEntity.ok(respuesta);
     }
-    // Fin
 
     @PostMapping("/usuarios/login")
     public ResponseEntity<Map<String, Object>> iniciarSesion(@RequestBody Map<String, String> datos) {
@@ -79,29 +65,13 @@ public class LoginController {
         String email = datos.get("email");
         String contrasena = datos.get("contrasena");
 
-        // Experimetacion-01:
-        // Inicio:
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
-        // Fin
 
-        // Exprimentacion-02 (Presenta fallos):
-        // Inicio:
         if (usuarioOpt.isPresent() && usuarioOpt.get().getContrasena().equals(contrasena)) {
             respuesta.put("mensaje", "Login exitoso");
             respuesta.put("usuario", usuarioOpt.get());
             return ResponseEntity.ok(respuesta);
         }
-        // Fin
-
-        // Codigo original:
-        // for (Map<String, Object> usuario : usuarios) {
-        // if (usuario.get("email").equals(email) &&
-        // usuario.get("password").equals(password)) {
-        // respuesta.put("mensaje", "Login exitoso");
-        // respuesta.put("usuario", usuario);
-        // return ResponseEntity.ok(respuesta);
-        // }
-        // }
 
         respuesta.put("error", "Email o contraseña incorrectos");
         return ResponseEntity.badRequest().body(respuesta);

@@ -10,7 +10,6 @@ import jakarta.persistence.Temporal;
 import java.util.Date;
 import jakarta.persistence.TemporalType;
 
-// Creacion de la clase Usuario para el registro en la base de datos:
 @Entity
 @Table(name = "usuarios")
 public class Usuario {
