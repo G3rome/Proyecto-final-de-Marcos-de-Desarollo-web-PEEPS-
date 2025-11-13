@@ -78,6 +78,16 @@
                 </a>
             </div>
             <!-- Fin -->
+            <!-- Funcionalidad: Premium -->
+            <!-- Inicio: -->
+            <div class="nav-section">
+                <a th:href="@{/premium}" class="nav-item premium-btn" id="premiumBtn">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Premium</span>
+                </a>
+            </div>
+            <!-- Fin -->
+
         </div>
     </nav>
 
@@ -144,7 +154,7 @@
 
                                     <div class="song-actions ms-auto">
                                         <button class="btn-like" th:data-id="${cancion.id}"
-                                                th:classappend="${cancion.isLiked() ? 'liked' : ''}">
+                                            th:classappend="${cancion.isLiked() ? 'liked' : ''}">
                                             <i th:class="${cancion.isLiked() ? 'fas fa-heart' : 'far fa-heart'}"></i>
                                         </button>
                                         <button class="btn-add-to-playlist" th:data-id="${cancion.id}">
@@ -170,7 +180,7 @@
 
                                 <div class="song-actions ms-auto">
                                     <button class="btn-like" th:data-id="${cancion.id}"
-                                            th:classappend="${cancion.isLiked() ? 'liked' : ''}">
+                                        th:classappend="${cancion.isLiked() ? 'liked' : ''}">
                                         <i th:class="${cancion.isLiked() ? 'fas fa-heart' : 'far fa-heart'}"></i>
                                     </button>
                                     <button class="btn-add-to-playlist" th:data-id="${cancion.id}">

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Zona Premium</title>
+    <link rel="stylesheet" th:href="@{/css/premium.css}" />
+</head>
+
+<body>
+    <section class="premium-section">
+        <h2 class="text-center fw-bold mb-5">Zona Premium</h2>
+
+        <div class="premium-container">
+
+            <!-- Información del usuario -->
+            <div class="premium-user-info">
+                <div class="user-card text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
+                         alt="Usuario" class="user-avatar mb-3">
+                    <h4 th:text="${usuario.nombreCompleto}">Nombre del Usuario</h4>
+                    <p class="text-muted" th:text="${usuario.email}">usuario@email.com</p>
+                    <span class="badge bg-warning text-dark fw-semibold">Usuario Premium</span>
+                </div>
+            </div>
+
+            <!-- Mensaje de bienvenida -->
+            <div class="premium-welcome mt-5 text-center">
+                <h4 class="fw-semibold mb-3">¡Bienvenido a tu zona Premium!</h4>
+                <p class="text-muted">
+                    Disfruta de beneficios exclusivos y una experiencia sin límites.
+                </p>
+            </div>
+
+        </div>
+    </section>
+</body>
+</html>

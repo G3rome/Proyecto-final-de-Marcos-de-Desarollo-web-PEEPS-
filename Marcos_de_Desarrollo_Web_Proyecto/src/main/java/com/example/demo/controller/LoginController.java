@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.repository.UsuarioRepository;
 
+import jakarta.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
@@ -19,7 +21,6 @@ public class LoginController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
-
 
     @GetMapping("/")
     public ResponseEntity<Map<String, Object>> inicio() {
@@ -59,7 +60,9 @@ public class LoginController {
     }
 
     @PostMapping("/usuarios/login")
-    public ResponseEntity<Map<String, Object>> iniciarSesion(@RequestBody Map<String, String> datos) {
+    public ResponseEntity<Map<String, Object>> iniciarSesion(@RequestBody Map<String, String> datos,
+            HttpSession session) {
+
         Map<String, Object> respuesta = new HashMap<>();
 
         String email = datos.get("email");
@@ -68,8 +71,14 @@ public class LoginController {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
 
         if (usuarioOpt.isPresent() && usuarioOpt.get().getContrasena().equals(contrasena)) {
+            
+            // Agregacion:
+            session.setAttribute("usuarioLogueado", usuarioOpt.get());
+            
             respuesta.put("mensaje", "Login exitoso");
+            
             respuesta.put("usuario", usuarioOpt.get());
+            
             return ResponseEntity.ok(respuesta);
         }
 
@@ -87,4 +96,3 @@ public class LoginController {
         return ResponseEntity.ok(respuesta);
     }
 }
-    

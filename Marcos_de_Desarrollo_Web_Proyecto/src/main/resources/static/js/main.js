@@ -206,14 +206,45 @@ const UI = {
 
         Utils.qsa('.sidebar .nav-item').forEach(item => {
             item.addEventListener('click', function (e) {
-                e.preventDefault();
+                // e.preventDefault();
 
                 Utils.qsa('.sidebar .nav-item').forEach(i => i.classList.remove('active'));
-
                 this.classList.add('active');
+
                 const section = Utils.qs('span', this)?.textContent?.trim().toLowerCase();
-                if (section === 'playlist') {
+
+                if (section === 'premium') {
+                    const contentContainer = Utils.qs('#mainDynamicContent');
+                contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+                contentContainer.style.opacity = 0;
+                contentContainer.style.transform = "translateY(15px)";
+
+                    setTimeout(() => {
+                    
+                        fetch('/premium', {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        })
+                    
+                        .then(response => response.text())
+                    
+                        .then(html => {
+                            contentContainer.innerHTML = html;
+                            contentContainer.style.opacity = 1;
+                            contentContainer.style.transform = "translateY(0)";
+                            history.pushState({ page: 'premium' }, 'Premium', '/premium');
+                        })
+
+                        .catch(error => {
+                            console.error('Error cargando Premium:', error);
+                            Notifier.show('Error al cargar Premium', 'danger');
+                        });
+
+                    }, 300);
+
+                } else if (section === 'playlist') {
+                    
                     const usuario = Auth.getUser();
+                    
                     if (!usuario) {
                         Notifier.show('Debes iniciar sesión para acceder a Playlist', 'warning');
                         return;
