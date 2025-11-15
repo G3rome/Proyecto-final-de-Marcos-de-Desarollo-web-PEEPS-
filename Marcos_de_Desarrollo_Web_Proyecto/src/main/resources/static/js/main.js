@@ -214,32 +214,9 @@ const UI = {
                 const section = Utils.qs('span', this)?.textContent?.trim().toLowerCase();
 
                 if (section === 'premium') {
-                    const contentContainer = Utils.qs('#mainDynamicContent');
-                contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
-                contentContainer.style.opacity = 0;
-                contentContainer.style.transform = "translateY(15px)";
-
-                    setTimeout(() => {
                     
-                        fetch('/premium', {
-                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                        })
-                    
-                        .then(response => response.text())
-                    
-                        .then(html => {
-                            contentContainer.innerHTML = html;
-                            contentContainer.style.opacity = 1;
-                            contentContainer.style.transform = "translateY(0)";
-                            history.pushState({ page: 'premium' }, 'Premium', '/premium');
-                        })
-
-                        .catch(error => {
-                            console.error('Error cargando Premium:', error);
-                            Notifier.show('Error al cargar Premium', 'danger');
-                        });
-
-                    }, 300);
+                    loadView('/premium', '.premium-view');
+                    return;
 
                 } else if (section === 'playlist') {
                     
@@ -869,6 +846,35 @@ function loadPlaylistSongs(playlistId) {
     const container = document.getElementById('playlistSongsContainer');
     container.innerHTML = `<p>Cargando canciones de la playlist ID: ${playlistId}</p>`;
 }
+
+// Funcionalidad corregida de despliegue del panel premium
+// Inicio:
+function loadView(url) {
+    fetch(url)
+        .then(res => res.text())
+        .then(html => {
+            const main = document.getElementById("mainDynamicContent");
+            main.innerHTML = html;
+
+            // Añadir animación suave
+            const firstChild = main.firstElementChild;
+            if (firstChild) {
+                firstChild.classList.add("view-fade-in");
+            }
+        })
+        .catch(err => console.error("Error loading view:", err));
+}
+
+document.getElementById("premiumBtn")?.addEventListener("click", function(e) {
+    e.preventDefault();
+
+    loadView('/premium');
+
+    // opcional: marcar activo
+    Utils.qsa('.sidebar .nav-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+});
+// Fin
 
 window.addEventListener('load', updateScrollButtons);
 window.addEventListener('resize', updateScrollButtons);
