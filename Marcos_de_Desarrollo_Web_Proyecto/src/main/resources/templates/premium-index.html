@@ -1,51 +1,45 @@
-<!-- Correccion y re-adaptacion del panel premium -->
 <div class="premium-view" th:fragment="content">
+    <section class="premium-premium-section fade-appear">
 
-    <section class="premium-section text-center">
-        <h2 class="fw-bold mb-3">Planes</h2>
-        <p class="text-muted mb-5">
-            Disfrute muchos de los beneficios accediendo a los siguientes planes.
-        </p>
-
-        <div class="container">
-            <div class="row justify-content-center">
-
-                <div class="col-md-4 mb-4">
-                    <div class="plan-card plan-standard">
-                        <h5 class="plan-title">Básico</h5>
-                        <h2 class="plan-price">$30</h2>
-                        <p class="plan-subtitle">Mensual</p>
-
-                        <ul class="plan-features">
-                            <li>Hasta 5 usuarios</li>
-                            <li>Feature 1</li>
-                            <li>Feature 2</li>
-                            <li>Feature 3</li>
-                        </ul>
-
-                        <button class="btn-plan">Acceder</button>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-4">
-                    <div class="plan-card plan-business featured">
-                        <h5 class="plan-title">Premium</h5>
-                        <h2 class="plan-price">$80</h2>
-                        <p class="plan-subtitle">Mensuales</p>
-
-                        <ul class="plan-features">
-                            <li>Hasta 15 usuarios</li>
-                            <li>Feature 1</li>
-                            <li>Feature 2</li>
-                            <li>Feature 3</li>
-                        </ul>
-
-                        <button class="btn-plan">Acceder</button>
-                    </div>
-                </div>
-
-            </div>
+        <div class="premium-header">
+            <h1 class="premium-title">Planes para ti</h1>
+            <p class="premium-subtitle">Disfruta de beneficios de acceso a planes exclusivos.</p>
         </div>
-    </section>
 
+        <div class="premium-plans-container">
+
+            <!-- PLAN BÁSICO -->
+            <div class="premium-card">
+                <div class="premium-ribbon basic">BÁSICO</div>
+                <h2 class="price">$30 <span>/ mes</span></h2>
+
+                <ul class="premium-features">
+                    <li>Acceso para 5 usuarios</li>
+                    <li>Biblioteca estándar</li>
+                    <li>Velocidad normal</li>
+                    <li>Soporte básico</li>
+                </ul>
+
+                <button class="premium-btn-basic">Elegir plan</button>
+            </div>
+
+            <!-- PLAN PREMIUM -->
+            <div class="premium-card premium-featured">
+                <div class="premium-ribbon premium">PREMIUM</div>
+                <h2 class="price">$80 <span>/ mes</span></h2>
+
+                <ul class="premium-features">
+                    <li>Acceso para 15 usuarios</li>
+                    <li>Biblioteca completa</li>
+                    <li>Velocidad alta</li>
+                    <li>Soporte prioritario</li>
+                    <li>Atención 24/7</li>
+                </ul>
+
+                <button class="premium-btn-premium">Elegir plan</button>
+            </div>
+
+        </div>
+
+    </section>
 </div>
