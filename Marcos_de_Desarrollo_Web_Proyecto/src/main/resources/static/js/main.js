@@ -1,11 +1,3 @@
-/* peeps-app-unified.js
-   Unifica Playlist + Premium
-   - Evita duplicados
-   - Maneja carga AJAX en #mainDynamicContent
-   - Protecciones DOM
-   - Mantiene modales / likes / add-to-playlist / carrusel / liked songs
-*/
-
 const Utils = {
     isValidEmail: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
     qs: (selector, parent = document) => (parent || document).querySelector(selector),
@@ -215,6 +207,12 @@ const UI = {
                 }
 
                 if (section === 'premium') {
+                    const usuario = Auth.getUser();
+                    
+                    if (!usuario) {
+                        AuthPopup.show("premium");
+                        return;
+                    }
                     // cargar vista premium
                     loadView('/premium');
                     return;
@@ -223,7 +221,7 @@ const UI = {
                 if (section === 'playlist') {
                     const usuario = Auth.getUser();
                     if (!usuario) {
-                        Notifier.show('Debes iniciar sesión para acceder a Playlist', 'warning');
+                        AuthPopup.show();
                         return;
                     }
 
@@ -264,6 +262,14 @@ const UI = {
         // fallback: premium button específico (si existe fuera del sidebar)
         Utils.qs("#premiumBtn")?.addEventListener("click", function (e) {
             e.preventDefault();
+
+            const usuario = Auth.getUser();
+
+            if (!usuario) {
+                AuthPopup.show("premium");
+                return;
+            }
+
             navItems.forEach(i => i.classList.remove('active'));
             this.classList.add('active');
             loadView('/premium');
@@ -764,8 +770,85 @@ function addPlaylistToCarrusel(playlist) {
     carrusel.scrollLeft = 0;
     updatePlaylistCount();
 }
+// Popup de bloqueo si no esta logueado:
+const AuthPopup = {
+    backdrop: Utils.qs('#authRequiredPopup'),
+    titleEl: Utils.qs('#authPopupTitle'),
+    msgEl: Utils.qs('#authPopupMessage'),
+
+    show(mode = "playlist") {
+
+        // Cambiar contenido dinámico según quien lo llamó
+        if (mode === "premium") {
+            this.titleEl.textContent = "¿Deseas ser Premium?";
+            this.msgEl.textContent = "Para acceder a los planes premium, inicia sesión o regístrate.";
+        } else {
+            // modo playlist por defecto
+            this.titleEl.textContent = "¿Quieres crear una playlist?";
+            this.msgEl.textContent = "Para hacerlo, solo tienes que iniciar sesión o registrarte con nosotros.";
+        }
+
+        this.backdrop.classList.remove('d-none');
+    },
+
+    hide() {
+        this.backdrop.classList.add('d-none');
+    },
+
+    init() {
+        const loginBtn = Utils.qs('#popupLoginBtn');
+        const registerBtn = Utils.qs('#popupRegisterBtn');
+
+        loginBtn?.addEventListener('click', () => {
+            this.hide();
+            window.location.href = "/";
+        });
+
+        registerBtn?.addEventListener('click', () => {
+            this.hide();
+            window.location.href = "/";
+        });
+
+        this.backdrop?.addEventListener('click', (e) => {
+            if (e.target === this.backdrop) {
+                this.hide();
+                window.location.href = "/";
+            }
+        });
+    }
+};
+
+
+const PremiumAccess = {
+    init() {
+
+        const premiumBtn = Utils.qs('#premiumBtn');
+
+        premiumBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const usuario = Auth.getUser();
+
+            if (!usuario) {
+                AuthPopup.show();
+                return;
+            }
+
+            loadView('/premium');
+        });
+
+    }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    AuthPopup.init();
+    PremiumAccess.init();
+});
+
+
 
 // Inicializaciones globales
+document.addEventListener("DOMContentLoaded", () => AuthPopup.init());
 document.addEventListener('DOMContentLoaded', initializePeepsApp);
 window.addEventListener('load', () => { updateScrollButtons(); });
 window.addEventListener('resize', () => { updateScrollButtons(); });

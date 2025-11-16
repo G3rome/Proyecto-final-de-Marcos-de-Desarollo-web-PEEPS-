@@ -1418,3 +1418,127 @@ body {
         transform: translateY(0);
     }
 }
+
+/* -------------------------------------- */
+/* Popup de bloqueo a playlist */
+/* -------------------------------------- */
+/* =======================
+   BACKDROP - Fondo oscuro con blur
+   ======================= */
+.auth-popup-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+
+    /* se oculta con d-none por Bootstrap */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease;
+}
+
+.auth-popup-backdrop:not(.d-none) {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* =======================
+   POPUP GLASSMORPHISM
+   ======================= */
+.auth-popup {
+    background: rgba(255, 255, 255, 0.10);
+    border-radius: 26px;
+    padding: 32px 40px;
+    width: 380px;
+    text-align: center;
+
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+
+    transform: scale(0.92);
+    opacity: 0;
+
+    animation: popupFadeIn .35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+/* =======================
+   TÍTULO Y TEXTO
+   ======================= */
+.auth-popup h3 {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+}
+
+.auth-popup p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 26px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+}
+
+/* .auth-popup-buttons button {
+    border-radius: 10px;
+} */
+
+/* =======================
+   BOTONES (Bootstrap pero mejorados)
+   ======================= */
+.auth-popup-buttons .btn {
+    padding: 11px 14px;
+    border-radius: 14px !important;
+    font-size: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    transition: 0.22s ease;
+}
+
+/* Botón principal → estilo Apple Music (rosa rojizo) */
+.auth-popup-buttons .btn-primary {
+    background: linear-gradient(145deg, #ff0050, #ff4d6d) !important;
+    border: none !important;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(255, 0, 80, 0.4);
+}
+
+.auth-popup-buttons .btn-primary:hover {
+    filter: brightness(1.08);
+    transform: translateY(-2px);
+}
+
+/* Botón secundario → estilo glass */
+.auth-popup-buttons .btn-outline-light {
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    background: rgba(255, 255, 255, 0.13) !important;
+    color: #fff !important;
+}
+
+.auth-popup-buttons .btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.22) !important;
+    transform: translateY(-2px);
+}
+
+/* =======================
+   ANIMACIÓN POPUP
+   ======================= */
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
