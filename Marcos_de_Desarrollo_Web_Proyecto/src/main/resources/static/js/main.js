@@ -776,16 +776,28 @@ const AuthPopup = {
     titleEl: Utils.qs('#authPopupTitle'),
     msgEl: Utils.qs('#authPopupMessage'),
 
-    show(mode = "playlist") {
+    show(mode = "playlist", plan = null) {
+
+        Utils.qs('#popupPagoContenido')?.classList.add('d-none');
+        Utils.qs('#popupDefaultTexto')?.classList.remove('d-none');
 
         // Cambiar contenido dinámico según quien lo llamó
-        if (mode === "premium") {
-            this.titleEl.textContent = "¿Deseas ser Premium?";
-            this.msgEl.textContent = "Para acceder a los planes premium, inicia sesión o regístrate.";
-        } else {
-            // modo playlist por defecto
+        if (mode === "playlist") {
             this.titleEl.textContent = "¿Quieres crear una playlist?";
             this.msgEl.textContent = "Para hacerlo, solo tienes que iniciar sesión o registrarte con nosotros.";
+        } else if (mode === "premium") {
+            // modo playlist por defecto
+            this.titleEl.textContent = "¿Deseas ser Premium?";
+            this.msgEl.textContent = "Para acceder a los planes premium, inicia sesión o regístrate.";
+        } else if (mode === "pago") {
+            this.titleEl.textContent = `Comprar plan: ${plan}`;
+            this.msgEl.textContent = "";
+
+            // Ocultar texto normal
+            Utils.qs('#popupDefaultTexto')?.classList.add('d-none');
+
+            // Mostrar formulario de pago
+            Utils.qs('#popupPagoContenido')?.classList.remove('d-none');
         }
 
         this.backdrop.classList.remove('d-none');
@@ -818,6 +830,46 @@ const AuthPopup = {
     }
 };
 
+const Premium = {
+    comprarPlan: async (plan) => {
+        const usuario = Auth.getUser();
+        if (!usuario) return AuthPopup.show("premium");
+
+        // Tomar los datos del formulario de pago
+        const nombreTarjeta = Utils.qs('#nombreTarjeta')?.value;
+        const numeroTarjeta = Utils.qs('#numeroTarjeta')?.value;
+        const cvv = Utils.qs('#cvvTarjeta')?.value;
+
+        if (!nombreTarjeta || !numeroTarjeta || !cvv) {
+            return Notifier.show('Completa todos los campos del formulario', 'danger');
+        }
+
+        try {
+            const response = await fetch('/api/premium/comprar', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json' },
+                credentials: "include",
+                // body: JSON.stringify({ plan, nombreTarjeta, numeroTarjeta, cvv })
+                body: JSON.stringify({ plan: planSeleccionado})
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Error al procesar el pago');
+
+            Notifier.show(`¡Compra exitosa! Plan ${plan} activado.`, 'success');
+
+            // Cerrar popup
+            AuthPopup.hide();
+
+        } catch (err) {
+            console.error(err);
+            Notifier.show(err.message || 'Error al comprar plan', 'danger');
+        }
+    }
+};
+
+
 
 const PremiumAccess = {
     init() {
@@ -840,11 +892,285 @@ const PremiumAccess = {
     }
 };
 
+const premiumBtn = Utils.qs('#premiumBtn');
+premiumBtn?.addEventListener('click', function(e) {
+    e.preventDefault();
+    const usuario = Auth.getUser();
+    if (!usuario) {
+        AuthPopup.show("premium");
+        return;
+    }
+    // usuario logueado → cargar vista en #mainDynamicContent
+    loadView('/premium');
+    history.pushState({ page: 'premium' }, 'Premium', '/premium');
+});
+
+
 document.addEventListener("DOMContentLoaded", () => {
     AuthPopup.init();
     PremiumAccess.init();
 });
 
+let planSeleccionado = null;
+
+document.addEventListener("click", async (e) => {
+
+    const popup = document.getElementById("authRequiredPopup");
+
+    // ==========================
+    // CERRAR POPUP (clic afuera)
+    // ==========================
+    if (!popup.classList.contains("d-none") && e.target === popup) {
+        popup.classList.add("d-none");
+
+        popup.querySelector("#popupPagoContenido")?.classList.add("d-none");
+        popup.querySelector("#popupDefaultButtons")?.classList.remove("d-none");
+        return;
+    }
+
+    // ==========================
+    // BOTÓN: ELEGIR PLAN
+    // ==========================
+    if (e.target.classList.contains("elegir-plan")) {
+
+        planSeleccionado = e.target.dataset.plan;
+        console.log("Plan seleccionado:", planSeleccionado);
+
+        popup.classList.remove("d-none");
+
+        const titulo = Utils.qs("#authPopupTitle");
+        const mensaje = Utils.qs("#authPopupMessage");
+        const contenidoPago = Utils.qs("#popupPagoContenido");
+        const botonesDefault = Utils.qs("#popupDefaultButtons");
+
+        titulo.textContent = `Comprar Plan ${planSeleccionado}`;
+        mensaje.textContent = `Completa los datos para activar tu suscripción al plan ${planSeleccionado}.`;
+
+        contenidoPago.classList.remove("d-none");
+        botonesDefault.classList.add("d-none");
+
+        return;
+    }
+
+    // ==========================
+    // BOTÓN: CERRAR POPUP
+    // ==========================
+    if (e.target.id === "cerrarPopup") {
+        popup.classList.add("d-none");
+
+        popup.querySelector("#popupPagoContenido")?.classList.add("d-none");
+        popup.querySelector("#popupDefaultButtons")?.classList.remove("d-none");
+        return;
+    }
+
+    // ==========================
+    // BOTÓN: PAGAR AHORA
+    // ==========================
+    if (e.target.id === "btnPagarPlan") {
+
+        // 1. Validar datos
+        const nombre = Utils.qs("#nombreTarjeta").value.trim();
+        const numero = Utils.qs("#numeroTarjeta").value.trim();
+        const exp    = Utils.qs("#expTarjeta").value.trim();
+        const cvc    = Utils.qs("#cvcTarjeta").value.trim();
+
+        if (!nombre || !numero || !exp || !cvc) {
+            alert("Completa todos los campos.");
+            return;
+        }
+
+        if (!planSeleccionado) {
+            alert("Error: no se detectó el plan seleccionado.");
+            return;
+        }
+
+        alert("Procesando pago...");
+
+        try {
+
+            const response = await fetch("/api/premium/comprar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ plan: planSeleccionado })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert(data.error || "Error desconocido en la compra.");
+                return;
+            }
+
+            alert("Pago exitoso. ¡Bienvenido a Premium!");
+
+            // 2. Cerrar popup
+            popup.classList.add("d-none");
+            Utils.qs("#popupPagoContenido").classList.add("d-none");
+            Utils.qs("#popupDefaultButtons").classList.remove("d-none");
+
+            // 3. Guardar estado del usuario premium
+            localStorage.setItem("userPremium", "true");
+
+            // 4. Redirigir
+            window.location.href = "/";
+
+        } catch (err) {
+            console.error(err);
+            alert("Error al procesar la compra.");
+        }
+    }
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    if (localStorage.getItem("userPremium") === "true") {
+        const bar = document.querySelector("#premiumStatusBar");
+
+        if (bar) {
+            bar.innerHTML = `
+                <span style="background:#ffb400;padding:6px 12px;border-radius:8px;color:#000;font-weight:bold">
+                    Premium
+                </span>
+
+                <button id="btnDesuscribir" style="
+                    margin-left:10px;
+                    background:#444;
+                    color:white;
+                    padding:6px 10px;
+                    border-radius:8px;
+                    border:none;
+                    cursor:pointer;">
+                    Desuscribirse
+                </button>
+            `;
+        }
+    }
+});
+
+document.addEventListener("click", e => {
+    if (e.target.id === "btnDesuscribir") {
+        if (confirm("¿Seguro que deseas desuscribirte?")) {
+            localStorage.removeItem("userPremium");
+            location.reload();
+        }
+    }
+});
+
+document.addEventListener("click", async (e) => {
+    if (!e.target.closest("#btnPagarPlan")) return;
+
+    e.preventDefault();
+
+    // 🚨 NO hacer validación de login
+    // 🚨 NO abrir popup de bloqueo
+    // 🚨 NO pasar por lógica del sidebar
+
+    // 1. Capturar datos del formulario
+    const nombre = Utils.qs("#nombreTarjeta").value.trim();
+    const numero = Utils.qs("#numeroTarjeta").value.trim();
+    const exp = Utils.qs("#expTarjeta").value.trim();
+    const cvc = Utils.qs("#cvcTarjeta").value.trim();
+
+    if (!nombre || !numero || !exp || !cvc) {
+        alert("Completa todos los campos antes de pagar.");
+        return;
+    }
+
+    // 2. Leer el plan que se eligió antes
+    const plan = window.planSeleccionado || null;
+
+    if (!plan) {
+        alert("Error: No se detectó el plan seleccionado.");
+        return;
+    }
+
+    alert("Procesando pago...");
+
+    try {
+        // 3. Enviar al backend
+        const response = await fetch("/api/premium/comprar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.error || "Error al procesar el pago.");
+            return;
+        }
+
+        alert("Pago exitoso. ¡Bienvenido a Premium!");
+
+        // 4. Cerrar popup
+        Utils.qs("#authRequiredPopup").classList.add("d-none");
+
+        // 5. Guardar estado premium localmente
+        localStorage.setItem("userPremium", "true");
+        localStorage.setItem("premiumPlan", plan);
+
+        // 6. Redirigir al inicio
+        window.location.href = "/";
+
+    } catch (err) {
+        console.error(err);
+        alert("Error al procesar el pago.");
+    }
+});
+
+// === FUNCIONALIDAD BOTÓN "PAGAR AHORA" ===
+document.addEventListener("click", async (e) => {
+    const btn = e.target.closest("#btnPagarAhora");
+    if (!btn) return;
+
+    const usuario = Auth.getUser();
+
+    if (!usuario) {
+        Notifier.show("Debes iniciar sesión para comprar un plan Premium.", "danger");
+        AuthPopup.show("premium");
+        return;
+    }
+
+    const plan = btn.dataset.plan; // "BASICO" o "PREMIUM"
+    if (!plan) return Notifier.show("Error: no se pudo detectar el plan.", "danger");
+
+    try {
+        Notifier.show("Procesando pago...", "info");
+
+        const response = await fetch("/api/premium/comprar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: usuario.email,
+                plan
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Error al procesar el pago");
+        }
+
+        Notifier.show("¡Pago realizado con éxito! Ya eres Premium 🎉", "success");
+
+        // Actualizar usuario en localStorage
+        usuario.premium = true;
+        usuario.plan = plan;
+        Auth.setUser(usuario);
+
+        // Cerrar popup
+        document.querySelector(".popup-pago-backdrop")?.remove();
+
+        // Actualizar vista
+        loadView("/premium");
+
+    } catch (err) {
+        Notifier.show(err.message, "danger");
+    }
+});
 
 
 // Inicializaciones globales
