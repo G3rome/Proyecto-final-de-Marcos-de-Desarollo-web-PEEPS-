@@ -1,3 +1,5 @@
+let planSeleccionado = null;
+
 const Utils = {
     isValidEmail: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
     qs: (selector, parent = document) => (parent || document).querySelector(selector),
@@ -38,22 +40,54 @@ const Auth = {
     _handleAuthRequest: async (endpoint, formData, form) => {
         try {
             Notifier.show('Procesando...', 'info');
-            const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+
+            const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(formData) });
+
             const data = await response.json();
-            if (!response.ok) throw new Error(data.mensaje || 'Error en la operación');
+            
+            if (!response.ok) throw new Error(data.error || data.mensaje || 'Error en la operación');
 
             Auth.setUser(data.usuario);
-            Notifier.show(`¡Bienvenido ${data.usuario.nombre || data.usuario.nombreCompleto || ''}!`, 'success');
 
-            if (form) {
-                const modal = bootstrap.Modal.getInstance(form.closest('.modal'));
-                modal?.hide();
+            const usuarioGuardado = Auth.getUser();
+            
+            if (!usuarioGuardado) {
+                console.error(' ERROR: El usuario no se guardó en localStorage');
+                throw new Error('Error al guardar la sesión');
             }
 
+            const nombreUsuario = data.usuario.nombreCompleto || data.usuario.nombre || 'Usuario';
+            Notifier.show(`¡Bienvenido ${nombreUsuario}!`, 'success');
+
+            const AuthPopup = Utils.qs('#authRequiredPopup');
+            if (AuthPopup && !AuthPopup.classList.contains('d-none')) {
+            }
+
+            if (form) {
+            const modal = bootstrap.Modal.getInstance(form.closest('.modal'));
+            if (modal) {
+                modal.hide();
+                
+                form.closest('.modal').addEventListener('hidden.bs.modal', () => {
+                    const bootstrapBackdrops = document.querySelectorAll('.modal-backdrop');
+                    bootstrapBackdrops.forEach(backdrop => backdrop.remove());
+
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = 'auto';
+                    document.body.style.paddingRight = '';
+                    
+                    UI.updateForLoggedInUser(data.usuario);
+                }, { once: true });
+            } else {
+                UI.updateForLoggedInUser(data.usuario);
+            }
+        } else {
+            UI.updateForLoggedInUser(data.usuario);
+        }
             setTimeout(() => UI.updateForLoggedInUser(data.usuario), 800);
         } catch (error) {
-            Notifier.show(error.message || 'Error en autenticación', 'danger');
             console.error('Error de autenticación:', error);
+            Notifier.show(error.message || 'Error en autenticación', 'danger');
         }
     },
 
@@ -76,7 +110,9 @@ const Auth = {
             contrasena: Utils.qs('#passwordLogin')?.value,
             recordar: Utils.qs('#recordarLogin')?.checked
         };
+
         await Auth._handleAuthRequest('/api/usuarios/login', formData, form);
+
     },
 
     handleRecuperarPassword: () => {
@@ -98,8 +134,10 @@ const UI = {
         try {
             const heroTitle = Utils.qs('.hero-title');
             if (heroTitle) heroTitle.textContent = `¡Bienvenido ${usuario.nombreCompleto || usuario.nombre || ''}!`;
+            
             const heroSubtitle = Utils.qs('.hero-subtitle');
             if (heroSubtitle) heroSubtitle.textContent = 'Radio felicidad 88.9 FM - Tu música favorita te espera';
+            
             const headerAuth = Utils.qs('#headerAuthButtons');
             if (headerAuth) {
                 headerAuth.innerHTML = `<button class="btn-custom-outline" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>`;
@@ -107,7 +145,6 @@ const UI = {
             }
             Utils.qs('#authCards') && (Utils.qs('#authCards').style.display = 'none');
             Utils.qs("#welcomeSection")?.classList.add("d-none");
-
             Utils.qs("#rankingSection")?.classList.remove("d-none");
             Utils.qs("#listaCanciones")?.classList.remove("d-none");
         } catch (err) {
@@ -119,11 +156,13 @@ const UI = {
         try {
             Utils.qs('.hero-title') && (Utils.qs('.hero-title').textContent = 'Bienvenido a Peeps');
             Utils.qs('.hero-subtitle') && (Utils.qs('.hero-subtitle').textContent = 'Radio felicidad 88.9 FM');
+            
             if (Utils.qs('#headerAuthButtons')) {
                 Utils.qs('#headerAuthButtons').innerHTML = `
                     <button class="btn-custom-outline" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fas fa-user"></i> Iniciar Sesión</button>
                     <button class="btn-custom-primary" data-bs-toggle="modal" data-bs-target="#registroModal"><i class="fas fa-plus"></i> Registrarse</button>`;
             }
+
             Utils.qs('#authCards') && (Utils.qs('#authCards').style.display = '');
             Utils.qs("#welcomeSection")?.classList.remove("d-none");
         } catch (err) {
@@ -137,13 +176,44 @@ const UI = {
         Utils.qs('#recuperarPasswordSubmitBtn')?.addEventListener('click', Auth.handleRecuperarPassword);
         Utils.qs('#terminosLink')?.addEventListener('click', (e) => { e.preventDefault(); new bootstrap.Modal(Utils.qs('#terminosModal')).show(); });
         Utils.qs('#recuperarPasswordLink')?.addEventListener('click', (e) => { e.preventDefault(); new bootstrap.Modal(Utils.qs('#recuperarPasswordModal')).show(); });
+
+        const loginModal = Utils.qs('#loginModal');
+        const registroModal = Utils.qs('#registroModal');
+
+        if (loginModal) {
+            loginModal.addEventListener('hidden.bs.modal', () => {
+                const backdrops = document.querySelector('.modal-backdrop');
+                if (backdrops && backdrops.length > 0) {
+                    backdrops.forEach(b => b.remove());
+                }
+
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = 'auto';
+                document.body.style.paddingRight = '';
+            });
+        }
+
+        if (registroModal) {
+            registroModal.addEventListener('hidden.bs.modal', () => {
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                if (backdrops && backdrops.length > 0) {
+                    backdrops.forEach(b => b.remove());
+                }
+
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = 'auto';
+                document.body.style.paddingRight = '';
+            });
+        }
     },
+
 
     setupMobileMenu: () => {
         const hamburger = Utils.qs('#hamburgerMenu');
         const sidebar = Utils.qs('#sidebarMobile');
         const overlay = Utils.qs('#mobileOverlay');
         if (!hamburger || !sidebar) return;
+        
         const closeMenu = () => {
             sidebar.classList.remove('open');
             overlay?.classList.remove('open');
@@ -151,6 +221,7 @@ const UI = {
             sidebar.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
         };
+
         const openMenu = () => {
             sidebar.classList.add('open');
             overlay?.classList.add('open');
@@ -158,14 +229,16 @@ const UI = {
             sidebar.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
         };
+
         hamburger?.addEventListener('click', () => (sidebar.classList.contains('open') ? closeMenu() : openMenu()));
         overlay?.addEventListener('click', closeMenu);
         window.addEventListener('resize', () => { if (window.innerWidth > 991.98) closeMenu(); });
     },
 
-    // Sidebar navigation: maneja Playlist y Premium (ambos cargan en mainDynamicContent)
+    // manejo de navegación sidebar
     setupSidebarNavigation: () => {
         const contentContainer = Utils.qs('#mainDynamicContent');
+
         const initInjectedPlaylistUI = (container) => {
             const crearBtn = Utils.qs('.btn-crear', container);
             if (crearBtn) {
@@ -206,22 +279,23 @@ const UI = {
                     return;
                 }
 
-                if (section === 'premium') {
+                if (section === 'premium' || section === 'planes') {
                     const usuario = Auth.getUser();
                     
                     if (!usuario) {
+                        console.log('No hay usuario, mostrando popup')
                         AuthPopup.show("premium");
                         return;
                     }
-                    // cargar vista premium
                     loadView('/premium');
                     return;
                 }
 
                 if (section === 'playlist') {
                     const usuario = Auth.getUser();
+
                     if (!usuario) {
-                        AuthPopup.show();
+                        AuthPopup.show("playplist");
                         return;
                     }
 
@@ -259,10 +333,9 @@ const UI = {
             });
         });
 
-        // fallback: premium button específico (si existe fuera del sidebar)
+        // Botón Premium
         Utils.qs("#premiumBtn")?.addEventListener("click", function (e) {
             e.preventDefault();
-
             const usuario = Auth.getUser();
 
             if (!usuario) {
@@ -314,6 +387,7 @@ const Validation = {
         Validation._fieldErrorState(field, message, isValid);
         return isValid;
     },
+
     validateForm: (form) => {
         if (!form) return false;
         let isFormValid = true;
@@ -322,6 +396,7 @@ const Validation = {
         });
         return isFormValid;
     },
+
     setupFormValidations: () => {
         ['#registroForm', '#loginForm', '#recuperarPasswordForm'].forEach(formId => {
             const form = Utils.qs(formId);
@@ -382,6 +457,7 @@ function addViewButtonsToExistingPlaylists() {
 const Search = {
     currentSong: null,
     audioPlayer: null,
+
     _createSongItem: (song) => {
         const item = document.createElement("div");
         item.classList.add("song-item");
@@ -404,20 +480,24 @@ const Search = {
         });
         return item;
     },
+
     _filterSongs: async () => {
         const query = Utils.qs("#searchInput")?.value.toLowerCase().trim() || '';
         const resultsContainer = Utils.qs("#searchResults");
         if (!resultsContainer) return;
         resultsContainer.innerHTML = "";
         if (!query) return;
+
         try {
             const response = await fetch(`/music/api/buscar?query=${encodeURIComponent(query)}`);
             if (!response.ok) throw new Error('Respuesta negativa de la API');
             const filtradas = await response.json();
+
             if (filtradas.length === 0) {
                 resultsContainer.innerHTML = `<p style="text-align:center;color:#888;">No se encontraron canciones</p>`;
                 return;
             }
+
             filtradas.forEach(c => {
                 const item = Search._createSongItem(c);
                 resultsContainer.appendChild(item);
@@ -428,11 +508,14 @@ const Search = {
             resultsContainer.innerHTML = `<p style="text-align:center;color:#888;">Error al cargar resultados</p>`;
         }
     },
+
     init: () => {
         Search.audioPlayer = Utils.qs("#audioPlayerSearch");
         const searchBtn = Utils.qs("#searchBtn");
         const searchOverlay = Utils.qs("#overlay");
         const searchInput = Utils.qs("#searchInput");
+
+
         searchBtn?.addEventListener("click", (e) => {
             e.preventDefault();
             searchOverlay?.classList.add("active");
@@ -450,7 +533,18 @@ const Search = {
                 Search.currentSong = null;
             }
         });
+
         searchInput?.addEventListener("input", Search._filterSongs);
+    }
+};
+
+const verificarSesionExistente = () => {
+    const usuario = Auth.getUser();
+    
+    if (usuario) {
+        UI.updateForLoggedInUser(usuario);
+    } else {
+        UI.restoreInitialState();
     }
 };
 
@@ -461,6 +555,7 @@ const initializePeepsApp = () => {
     Validation.setupFormValidations();
     Search.init();
     initHomePageListeners();
+    verificarSesionExistente();
 
     const user = Auth.getUser();
     if (user) {
@@ -477,11 +572,13 @@ async function handleLikeClick(e) {
     e.stopPropagation();
     const cancionId = likeButton.dataset.id;
     if (!cancionId) return;
+
     try {
         const response = await fetch(`/music/api/cancion/${cancionId}/toggle-like`, { method: 'POST' });
         if (!response.ok) throw new Error('Error al actualizar like');
         const resultado = await response.json();
         const icon = likeButton.querySelector('i');
+
         if (resultado.esLiked) {
             likeButton.classList.add('liked');
             icon?.classList.remove('far');
@@ -505,21 +602,26 @@ async function handleAddSongClick(e) {
     e.stopPropagation();
     const cancionId = addButton.dataset.id;
     if (!cancionId) return;
+
     const modalElement = document.getElementById('addToPlaylistModal');
     const modalList = document.getElementById('playlist-modal-list');
     if (!modalElement || !modalList) return Notifier.show('Modal de playlists no disponible', 'danger');
+    
     const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
     modalElement.dataset.cancionId = cancionId;
     modalList.innerHTML = '<p>Cargando playlists...</p>';
+    
     try {
         const response = await fetch('/api/playlists');
         if (!response.ok) throw new Error('No se pudieron cargar las playlists');
         const playlists = await response.json();
         modalList.innerHTML = '';
+
         if (!playlists.length) {
             modalList.innerHTML = '<p>Aún no has creado ninguna playlist.</p>';
             return;
         }
+
         playlists.forEach(playlist => {
             const item = document.createElement('button');
             item.className = 'list-group-item list-group-item-action btn-playlist-select';
@@ -533,7 +635,6 @@ async function handleAddSongClick(e) {
     modal.show();
 }
 
-// Listener seguro para lista del modal (si existe)
 if (document.getElementById('playlist-modal-list')) {
     document.getElementById('playlist-modal-list').addEventListener('click', (e) => {
         const playlistButton = e.target.closest('.btn-playlist-select');
@@ -541,28 +642,31 @@ if (document.getElementById('playlist-modal-list')) {
         const playlistId = playlistButton.dataset.playlistId;
         const modalElement = document.getElementById('addToPlaylistModal');
         const cancionId = modalElement?.dataset?.cancionId;
+
         if (!playlistId || !cancionId) {
             Notifier.show('Error, falta información', 'danger');
             return;
         }
+
         Notifier.show('Añadiendo...', 'info');
         const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
         modal.hide();
+
         fetch('/api/playlist/agregarCancion', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cancionId: parseInt(cancionId), playlistId: parseInt(playlistId) })
         })
-            .then(response => {
-                if (!response.ok) return response.json().then(err => { throw new Error(err.error || 'Error al añadir la canción'); });
-                return response.json();
-            })
-            .then(resultado => {
-                Notifier.show(`"${resultado.cancionTitulo}" añadido a "${resultado.playlistNombre}"!`, 'success');
-            })
-            .catch(error => {
-                Notifier.show(error.message || 'Error al añadir', 'danger');
-            });
+        .then(response => {
+            if (!response.ok) return response.json().then(err => { throw new Error(err.error || 'Error al añadir la canción'); });
+            return response.json();
+        })
+        .then(resultado => {
+            Notifier.show(`"${resultado.cancionTitulo}" añadido a "${resultado.playlistNombre}"!`, 'success');
+        })
+        .catch(error => {
+            Notifier.show(error.message || 'Error al añadir', 'danger');
+        });
     });
 }
 
@@ -576,7 +680,6 @@ if (addToPlaylistModalEl) {
     });
 }
 
-// Delegación general de clicks (likes, add-to-playlist)
 document.body.addEventListener('click', handleAddSongClick);
 document.body.addEventListener('click', handleLikeClick);
 
@@ -584,18 +687,22 @@ document.body.addEventListener('click', handleLikeClick);
 async function showPlaylistSongsModal(playlistId, playlistNombre) {
     const modalEl = document.getElementById('viewPlaylistModal');
     if (!modalEl) return Notifier.show('Modal de visualización no disponible', 'danger');
+    
     const modalBody = modalEl.querySelector('.modal-body');
     const modalTitle = modalEl.querySelector('.modal-title');
     modalTitle.textContent = `Playlist: ${playlistNombre}`;
     modalBody.innerHTML = 'Cargando canciones...';
+
     try {
         const response = await fetch(`/api/playlist/${playlistId}/canciones`);
         if (!response.ok) throw new Error('No se pudieron cargar las canciones');
         const canciones = await response.json();
+
         if (!canciones.length) {
             modalBody.innerHTML = '<p>No hay canciones en esta playlist.</p>';
             return;
         }
+
         const table = document.createElement('table');
         table.className = 'table table-striped';
         table.innerHTML = `
@@ -611,6 +718,7 @@ async function showPlaylistSongsModal(playlistId, playlistNombre) {
     } catch (err) {
         modalBody.innerHTML = `<p class="text-danger">${err.message}</p>`;
     }
+
     const modal = new bootstrap.Modal(modalEl, { backdrop: false, keyboard: true });
     modalEl.style.zIndex = 1055;
     modal.show();
@@ -620,10 +728,11 @@ async function showPlaylistSongsModal(playlistId, playlistNombre) {
     }, { once: true });
 }
 
-// Delegación para botones "Ver" de playlists
+//Boton "Ver" de playlists
 document.body.addEventListener('click', (e) => {
     const btn = e.target.closest('.btn-view-playlist');
     if (!btn) return;
+    
     const playlistItem = btn.closest('.carrusel-item');
     const playlistId = btn.dataset.playlistId || playlistItem?.dataset?.playlistId;
     const playlistNombre = playlistItem?.querySelector('.playlist-name')?.textContent || 'Playlist';
@@ -726,7 +835,7 @@ function loadPlaylistSongs(playlistId) {
     container.innerHTML = `<p>Cargando canciones de la playlist ID: ${playlistId}</p>`;
 }
 
-// Load view (Premium u otras vistas) dentro de #mainDynamicContent
+// Cargar vista dinámica
 function loadView(url) {
     fetch(url)
         .then(res => res.text())
@@ -743,7 +852,7 @@ function loadView(url) {
         });
 }
 
-// Agregar nueva playlist al carrusel (UI)
+// Agregar nueva playlist al carrusel
 function addPlaylistToCarrusel(playlist) {
     const carrusel = document.querySelector('.carrusel');
     if (!carrusel) return;
@@ -780,8 +889,8 @@ const AuthPopup = {
 
         Utils.qs('#popupPagoContenido')?.classList.add('d-none');
         Utils.qs('#popupDefaultTexto')?.classList.remove('d-none');
+        Utils.qs('#popupDefaultButtons')?.classList.remove('d-none');
 
-        // Cambiar contenido dinámico según quien lo llamó
         if (mode === "playlist") {
             this.titleEl.textContent = "¿Quieres crear una playlist?";
             this.msgEl.textContent = "Para hacerlo, solo tienes que iniciar sesión o registrarte con nosotros.";
@@ -792,39 +901,72 @@ const AuthPopup = {
         } else if (mode === "pago") {
             this.titleEl.textContent = `Comprar plan: ${plan}`;
             this.msgEl.textContent = "";
-
-            // Ocultar texto normal
             Utils.qs('#popupDefaultTexto')?.classList.add('d-none');
-
-            // Mostrar formulario de pago
             Utils.qs('#popupPagoContenido')?.classList.remove('d-none');
         }
 
         this.backdrop.classList.remove('d-none');
+        document.body.style.overflow = 'hidden';
     },
 
     hide() {
-        this.backdrop.classList.add('d-none');
+        if (this.backdrop) {
+            this.backdrop.classList.add('d-none');
+        }
+        
+        document.body.style.overflow = 'auto';
+        document.body.style.paddingRight = '';
+        document.body.classList.remove('modal-open');
+        
+        const allBackdrops = document.querySelectorAll('.modal-backdrop, .auth-popup-backdrop');
+        allBackdrops.forEach(backdrop => {
+            if (backdrop.id !== 'authRequiredPopup') {
+                backdrop.remove();
+            }
+        });
+        
+        Utils.qs('#popupPagoContenido')?.classList.add('d-none');
+        Utils.qs('#popupDefaultTexto')?.classList.remove('d-none');
+        Utils.qs('#popupDefaultButtons')?.classList.remove('d-none');
     },
 
     init() {
         const loginBtn = Utils.qs('#popupLoginBtn');
         const registerBtn = Utils.qs('#popupRegisterBtn');
+        const closeBtn = Utils.qs('#closeAuthPopup');
 
-        loginBtn?.addEventListener('click', () => {
+        loginBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             this.hide();
-            window.location.href = "/";
+            
+            setTimeout(() => {
+                const loginModal = new bootstrap.Modal(Utils.qs('#loginModal'));
+                loginModal.show();
+            }, 300);
         });
 
-        registerBtn?.addEventListener('click', () => {
+        registerBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             this.hide();
-            window.location.href = "/";
+            
+            setTimeout(() => {
+                const registroModal = new bootstrap.Modal(Utils.qs('#registroModal'));
+                registroModal.show();
+            }, 300);
+        });
+
+        closeBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.hide();
         });
 
         this.backdrop?.addEventListener('click', (e) => {
             if (e.target === this.backdrop) {
+                console.log('Clic fuera del popup, cerrando');
                 this.hide();
-                window.location.href = "/";
             }
         });
     }
@@ -911,115 +1053,174 @@ document.addEventListener("DOMContentLoaded", () => {
     PremiumAccess.init();
 });
 
-let planSeleccionado = null;
 
 document.addEventListener("click", async (e) => {
 
     const popup = document.getElementById("authRequiredPopup");
 
-    // ==========================
-    // CERRAR POPUP (clic afuera)
-    // ==========================
+    if (e.target.id === "btnPagarAhora" || e.target.closest("#btnPagarAhora")) {
+    }
+
     if (!popup.classList.contains("d-none") && e.target === popup) {
         popup.classList.add("d-none");
-
         popup.querySelector("#popupPagoContenido")?.classList.add("d-none");
         popup.querySelector("#popupDefaultButtons")?.classList.remove("d-none");
         return;
     }
 
-    // ==========================
-    // BOTÓN: ELEGIR PLAN
-    // ==========================
     if (e.target.classList.contains("elegir-plan")) {
+        e.preventDefault();
+        e.stopPropagation();
 
-        planSeleccionado = e.target.dataset.plan;
-        console.log("Plan seleccionado:", planSeleccionado);
+        planSeleccionado = e.target.dataset.plan || e.target.getAttribute("data-plan");
+        window.planSeleccionado = planSeleccionado;
+
+        if (!planSeleccionado) {
+            console.error(' No se pudo obtener el plan del botón');
+            Notifier.show('Error: No se pudo detectar el plan seleccionado', 'danger');
+            return;
+        }
+
+        const usuario = Auth.getUser();
+
+        if (!usuario) {
+            AuthPopup.show("premium");
+            return;
+        }
 
         popup.classList.remove("d-none");
-
+        
         const titulo = Utils.qs("#authPopupTitle");
         const mensaje = Utils.qs("#authPopupMessage");
         const contenidoPago = Utils.qs("#popupPagoContenido");
         const botonesDefault = Utils.qs("#popupDefaultButtons");
 
-        titulo.textContent = `Comprar Plan ${planSeleccionado}`;
-        mensaje.textContent = `Completa los datos para activar tu suscripción al plan ${planSeleccionado}.`;
+        if (titulo) titulo.textContent = `Comprar Plan ${planSeleccionado}`;
+        if (mensaje) mensaje.textContent = `Completa los datos para activar tu suscripción al plan ${planSeleccionado}.`;
 
-        contenidoPago.classList.remove("d-none");
-        botonesDefault.classList.add("d-none");
+        if (contenidoPago) contenidoPago.classList.remove("d-none");
+        if (botonesDefault) botonesDefault.classList.add("d-none");
+
+        setTimeout(() => {
+            const btnPagar = document.getElementById('btnPagarAhora');
+            
+            if (btnPagar) {
+                const nuevoBtn = btnPagar.cloneNode(true);
+                btnPagar.parentNode.replaceChild(nuevoBtn, btnPagar);
+
+                nuevoBtn.addEventListener('click', async (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    await procesarPago(popup);
+                });
+            } else {
+                console.error('No se encontró el botón btnPagarAhora');
+            }
+        }, 100);
 
         return;
     }
 
-    // ==========================
-    // BOTÓN: CERRAR POPUP
-    // ==========================
     if (e.target.id === "cerrarPopup") {
         popup.classList.add("d-none");
-
         popup.querySelector("#popupPagoContenido")?.classList.add("d-none");
         popup.querySelector("#popupDefaultButtons")?.classList.remove("d-none");
         return;
     }
 
-    // ==========================
-    // BOTÓN: PAGAR AHORA
-    // ==========================
-    if (e.target.id === "btnPagarPlan") {
-
-        // 1. Validar datos
-        const nombre = Utils.qs("#nombreTarjeta").value.trim();
-        const numero = Utils.qs("#numeroTarjeta").value.trim();
-        const exp    = Utils.qs("#expTarjeta").value.trim();
-        const cvc    = Utils.qs("#cvcTarjeta").value.trim();
-
-        if (!nombre || !numero || !exp || !cvc) {
-            alert("Completa todos los campos.");
-            return;
-        }
-
-        if (!planSeleccionado) {
-            alert("Error: no se detectó el plan seleccionado.");
-            return;
-        }
-
-        alert("Procesando pago...");
-
-        try {
-
-            const response = await fetch("/api/premium/comprar", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ plan: planSeleccionado })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                alert(data.error || "Error desconocido en la compra.");
-                return;
-            }
-
-            alert("Pago exitoso. ¡Bienvenido a Premium!");
-
-            // 2. Cerrar popup
-            popup.classList.add("d-none");
-            Utils.qs("#popupPagoContenido").classList.add("d-none");
-            Utils.qs("#popupDefaultButtons").classList.remove("d-none");
-
-            // 3. Guardar estado del usuario premium
-            localStorage.setItem("userPremium", "true");
-
-            // 4. Redirigir
-            window.location.href = "/";
-
-        } catch (err) {
-            console.error(err);
-            alert("Error al procesar la compra.");
-        }
+    if (e.target.id === "btnPagarAhora" || 
+        e.target.closest("#btnPagarAhora") ||
+        (e.target.tagName === 'BUTTON' && e.target.textContent.includes('Pagar ahora'))) {
+        
+        e.preventDefault();
+        e.stopPropagation();
+        await procesarPago(popup);
     }
 });
+
+async function procesarPago(popup) {
+    const plan = planSeleccionado || window.planSeleccionado;
+
+    const nombre = Utils.qs("#nombreTarjeta")?.value?.trim();
+    const numero = Utils.qs("#numeroTarjeta")?.value?.trim();
+    const exp = Utils.qs("#expTarjeta")?.value?.trim();
+    const cvc = Utils.qs("#cvcTarjeta")?.value?.trim();
+
+    if (!nombre || !numero || !exp || !cvc) {
+        Notifier.show("Completa todos los campos del formulario", "danger");
+        return;
+    }
+
+    if (!plan) {
+        console.error("Error: no se detectó el plan seleccionado");
+        Notifier.show("Error: no se pudo detectar el plan seleccionado", "danger");
+        
+        popup.classList.add("d-none");
+        Utils.qs("#popupPagoContenido")?.classList.add("d-none");
+        Utils.qs("#popupDefaultButtons")?.classList.remove("d-none");
+        return;
+    }
+
+    const usuario = Auth.getUser();
+    if (!usuario) {
+        console.error("Error: usuario no logueado");
+        Notifier.show("Debes iniciar sesión para completar la compra", "danger");
+        AuthPopup.hide();
+        AuthPopup.show("premium");
+        return;
+    }
+
+    Notifier.show("Procesando pago...", "info");
+
+    try {
+        const response = await fetch("/api/premium/comprar", {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json" 
+            },
+            credentials: "include",
+            body: JSON.stringify({ 
+                plan: plan,
+                email: usuario.email
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Error desconocido en la compra");
+        }
+
+        Notifier.show("¡Pago exitoso! Bienvenido a Premium 🎉", "success");
+
+        popup.classList.add("d-none");
+        Utils.qs("#popupPagoContenido")?.classList.add("d-none");
+        Utils.qs("#popupDefaultButtons")?.classList.remove("d-none");
+
+        if (Utils.qs("#nombreTarjeta")) Utils.qs("#nombreTarjeta").value = "";
+        if (Utils.qs("#numeroTarjeta")) Utils.qs("#numeroTarjeta").value = "";
+        if (Utils.qs("#expTarjeta")) Utils.qs("#expTarjeta").value = "";
+        if (Utils.qs("#cvcTarjeta")) Utils.qs("#cvcTarjeta").value = "";
+
+        localStorage.setItem("userPremium", "true");
+        localStorage.setItem("premiumPlan", plan);
+
+        usuario.premium = true;
+        usuario.plan = plan;
+        Auth.setUser(usuario);
+
+        planSeleccionado = null;
+        window.planSeleccionado = null;
+
+        setTimeout(() => {
+            window.location.href = "/";
+        }, 1500);
+
+    } catch (err) {
+        console.error('Error en la compra:', err);
+        Notifier.show(err.message || "Error al procesar la compra", "danger");
+    }
+};
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1052,6 +1253,7 @@ document.addEventListener("click", e => {
     if (e.target.id === "btnDesuscribir") {
         if (confirm("¿Seguro que deseas desuscribirte?")) {
             localStorage.removeItem("userPremium");
+            localStorage.removeItem("premiumPlan");
             location.reload();
         }
     }
@@ -1061,10 +1263,6 @@ document.addEventListener("click", async (e) => {
     if (!e.target.closest("#btnPagarPlan")) return;
 
     e.preventDefault();
-
-    // 🚨 NO hacer validación de login
-    // 🚨 NO abrir popup de bloqueo
-    // 🚨 NO pasar por lógica del sidebar
 
     // 1. Capturar datos del formulario
     const nombre = Utils.qs("#nombreTarjeta").value.trim();
@@ -1112,7 +1310,7 @@ document.addEventListener("click", async (e) => {
         localStorage.setItem("premiumPlan", plan);
 
         // 6. Redirigir al inicio
-        window.location.href = "/";
+        
 
     } catch (err) {
         console.error(err);
@@ -1172,8 +1370,24 @@ document.addEventListener("click", async (e) => {
     }
 });
 
+const limpiarBackdrops = () => {
+    const bootstrapBackdrops = document.querySelectorAll('.modal-backdrop');
+    bootstrapBackdrops.forEach(backdrop => {backdrop.remove();});
+    
+    const authPopup = Utils.qs('#authRequiredPopup');
+    if (authPopup && !authPopup.classList.contains('d-none')) {
+        authPopup.classList.add('d-none');
+    }
+    
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = 'auto';
+    document.body.style.paddingRight = '';
+};
 
-// Inicializaciones globales
+window.addEventListener('load', () => {
+    limpiarBackdrops();
+});
+
 document.addEventListener("DOMContentLoaded", () => AuthPopup.init());
 document.addEventListener('DOMContentLoaded', initializePeepsApp);
 window.addEventListener('load', () => { updateScrollButtons(); });

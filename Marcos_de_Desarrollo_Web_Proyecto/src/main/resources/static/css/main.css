@@ -1237,7 +1237,6 @@ body {
     font-size: 2.7rem;
     font-weight: 800;
     background: linear-gradient(90deg, #f7d598, #fff5d0);
-    -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -1467,6 +1466,7 @@ body {
     opacity: 0;
 
     animation: popupFadeIn .35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    pointer-events: all;
 }
 
 /* =======================
@@ -1529,7 +1529,7 @@ body {
 }
 
 /* =======================
-   ANIMACIÓN POPUP
+    ANIMACIÓN POPUP
    ======================= */
 @keyframes popupFadeIn {
     from {

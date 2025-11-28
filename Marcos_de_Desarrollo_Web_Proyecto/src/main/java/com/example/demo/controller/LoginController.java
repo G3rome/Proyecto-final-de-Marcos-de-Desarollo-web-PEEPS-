@@ -85,7 +85,6 @@ public class LoginController {
 
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
-            
             // Verificar la contraseña usando bcrypt
             if (passwordEncoder.matches(contrasena, usuario.getContrasena())) {
                 // Limpiar la contraseña de la respuesta por seguridad
@@ -95,7 +94,6 @@ public class LoginController {
                 session.setAttribute("usuarioLogueado", usuario);
                 
                 respuesta.put("mensaje", "Login exitoso");
-                
                 respuesta.put("usuario", usuario);
                 
                 return ResponseEntity.ok(respuesta);
