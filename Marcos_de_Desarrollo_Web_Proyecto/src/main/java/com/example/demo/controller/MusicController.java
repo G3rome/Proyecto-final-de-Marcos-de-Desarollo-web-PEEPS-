@@ -19,27 +19,20 @@ import java.util.Map;
 @RequestMapping("/music")
 public class MusicController {
     
-    // Inyecta el repositorio para usar la BD
     @Autowired
     private CancionRepository cancionRepository;
 
-
     @GetMapping("/reproductor")
     public String reproductor(@RequestParam Long id, Model model) {
-        
         Cancion cancion = cancionRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Canción no encontrada"));
-        
         model.addAttribute("cancion", cancion);
-        
         return "reproductor"; 
     }
 
-    /**
+
     @ResponseBody 
-     */
     @GetMapping("/api/buscar")
-    @ResponseBody 
     public List<Cancion> buscarCanciones(@RequestParam String query) {
         return cancionRepository.findByTituloContainingIgnoreCaseOrArtistaContainingIgnoreCase(query, query);
     }
@@ -49,13 +42,10 @@ public class MusicController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> toggleLike(@PathVariable Long id) {
         Optional<Cancion> optCancion = cancionRepository.findById(id);
-        
         if (optCancion.isEmpty()) {
             return ResponseEntity.notFound().build();
-        }
-        
+        }     
         Cancion cancion = optCancion.get();
-        // Invierte el estado actual
         cancion.setLiked(!cancion.isLiked()); 
         cancionRepository.save(cancion);
         

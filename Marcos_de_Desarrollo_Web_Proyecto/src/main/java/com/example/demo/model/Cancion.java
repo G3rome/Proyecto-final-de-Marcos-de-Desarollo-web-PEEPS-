@@ -6,18 +6,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-@Entity // Le dice a JPA: Esta clase es una tabla de base de datos
-@Table(name = "canciones") // Le dice a JPA: El nombre de la tabla será 'canciones'
+@Entity
+@Table(name = "canciones")
 public class Cancion {
 
-    @Id // Le dice a JPA: Este campo es la Llave Primaria (ID)
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Le dice a JPA: "Este ID debe ser autoincremental"
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String titulo;
     private String artista;
-    private String cover; // Ruta a la imagen (ej. /images/Bohemian Rhapsody.jpg)
-    private String src;   // Ruta al audio (ej. /audio/Bohemian Rhapsody.mp3)
+    private String cover;
+    private String src;
     private Boolean liked = false;
 
 

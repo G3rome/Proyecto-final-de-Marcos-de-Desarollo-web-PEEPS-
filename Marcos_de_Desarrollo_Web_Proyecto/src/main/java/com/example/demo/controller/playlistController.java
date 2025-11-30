@@ -3,7 +3,6 @@ package com.example.demo.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.example.demo.model.Cancion;
 import com.example.demo.model.Playlist;
 import com.example.demo.model.PlaylistCancion;
@@ -40,14 +38,12 @@ public class playlistController {
         // Buscar todas las playlists de la base de datos
         List<Playlist> misPlaylists = playlistRepository.findAll();
 
-        // Pasarlas al modelo para que Thymeleaf las use
         model.addAttribute("playlists", misPlaylists);
 
         // El resto de tu lógica SPA se queda igual
         if ("XMLHttpRequest".equals(requestedWith)) {
             return "playlist-index :: playlistContent";
         }
-
         model.addAttribute("view", "playlist-index :: playlistContent");
         return "index";
     }
@@ -61,7 +57,7 @@ public class playlistController {
     // NUEVOS MÉTODOS API para crear y añadir canciones
 
     @PostMapping("/api/playlist/crear")
-    @ResponseBody // Le dice a Spring que devuelva JSON, no una página HTML
+    @ResponseBody 
     public Playlist crearPlaylist(@RequestBody Map<String, String> payload) {
 
         // Obtenemos el nombre que nos envió el JavaScript
@@ -78,7 +74,6 @@ public class playlistController {
     @PostMapping("/api/playlist/agregarCancion")
     @ResponseBody
     public ResponseEntity<Map<String, String>> agregarCancionAPlaylist(@RequestBody Map<String, Long> payload) {
-
         Long cancionId = payload.get("cancionId");
         // Lee el playlistId que envía el frontend
         Long playlistId = payload.get("playlistId");

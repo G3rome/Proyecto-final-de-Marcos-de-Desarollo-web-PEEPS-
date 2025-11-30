@@ -44,13 +44,13 @@ const Auth = {
             const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(formData) });
 
             const data = await response.json();
-            
+
             if (!response.ok) throw new Error(data.error || data.mensaje || 'Error en la operación');
 
             Auth.setUser(data.usuario);
 
             const usuarioGuardado = Auth.getUser();
-            
+
             if (!usuarioGuardado) {
                 console.error(' ERROR: El usuario no se guardó en localStorage');
                 throw new Error('Error al guardar la sesión');
@@ -64,26 +64,26 @@ const Auth = {
             }
 
             if (form) {
-            const modal = bootstrap.Modal.getInstance(form.closest('.modal'));
-            if (modal) {
-                modal.hide();
-                
-                form.closest('.modal').addEventListener('hidden.bs.modal', () => {
-                    const bootstrapBackdrops = document.querySelectorAll('.modal-backdrop');
-                    bootstrapBackdrops.forEach(backdrop => backdrop.remove());
+                const modal = bootstrap.Modal.getInstance(form.closest('.modal'));
+                if (modal) {
+                    modal.hide();
 
-                    document.body.classList.remove('modal-open');
-                    document.body.style.overflow = 'auto';
-                    document.body.style.paddingRight = '';
-                    
+                    form.closest('.modal').addEventListener('hidden.bs.modal', () => {
+                        const bootstrapBackdrops = document.querySelectorAll('.modal-backdrop');
+                        bootstrapBackdrops.forEach(backdrop => backdrop.remove());
+
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = 'auto';
+                        document.body.style.paddingRight = '';
+
+                        UI.updateForLoggedInUser(data.usuario);
+                    }, { once: true });
+                } else {
                     UI.updateForLoggedInUser(data.usuario);
-                }, { once: true });
+                }
             } else {
                 UI.updateForLoggedInUser(data.usuario);
             }
-        } else {
-            UI.updateForLoggedInUser(data.usuario);
-        }
             setTimeout(() => UI.updateForLoggedInUser(data.usuario), 800);
         } catch (error) {
             console.error('Error de autenticación:', error);
@@ -134,10 +134,10 @@ const UI = {
         try {
             const heroTitle = Utils.qs('.hero-title');
             if (heroTitle) heroTitle.textContent = `¡Bienvenido ${usuario.nombreCompleto || usuario.nombre || ''}!`;
-            
+
             const heroSubtitle = Utils.qs('.hero-subtitle');
             if (heroSubtitle) heroSubtitle.textContent = 'Radio felicidad 88.9 FM - Tu música favorita te espera';
-            
+
             const headerAuth = Utils.qs('#headerAuthButtons');
             if (headerAuth) {
                 headerAuth.innerHTML = `<button class="btn-custom-outline" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>`;
@@ -156,7 +156,7 @@ const UI = {
         try {
             Utils.qs('.hero-title') && (Utils.qs('.hero-title').textContent = 'Bienvenido a Peeps');
             Utils.qs('.hero-subtitle') && (Utils.qs('.hero-subtitle').textContent = 'Radio felicidad 88.9 FM');
-            
+
             if (Utils.qs('#headerAuthButtons')) {
                 Utils.qs('#headerAuthButtons').innerHTML = `
                     <button class="btn-custom-outline" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fas fa-user"></i> Iniciar Sesión</button>
@@ -177,12 +177,9 @@ const UI = {
         Utils.qs('#terminosLink')?.addEventListener('click', (e) => { e.preventDefault(); new bootstrap.Modal(Utils.qs('#terminosModal')).show(); });
         Utils.qs('#recuperarPasswordLink')?.addEventListener('click', (e) => { e.preventDefault(); new bootstrap.Modal(Utils.qs('#recuperarPasswordModal')).show(); });
 
-        const loginModal = Utils.qs('#loginModal');
-        const registroModal = Utils.qs('#registroModal');
-
         if (loginModal) {
             loginModal.addEventListener('hidden.bs.modal', () => {
-                const backdrops = document.querySelector('.modal-backdrop');
+                const backdrops = document.querySelectorAll('.modal-backdrop');
                 if (backdrops && backdrops.length > 0) {
                     backdrops.forEach(b => b.remove());
                 }
@@ -213,7 +210,7 @@ const UI = {
         const sidebar = Utils.qs('#sidebarMobile');
         const overlay = Utils.qs('#mobileOverlay');
         if (!hamburger || !sidebar) return;
-        
+
         const closeMenu = () => {
             sidebar.classList.remove('open');
             overlay?.classList.remove('open');
@@ -230,28 +227,36 @@ const UI = {
             document.body.style.overflow = 'hidden';
         };
 
-        hamburger?.addEventListener('click', () => (sidebar.classList.contains('open') ? closeMenu() : openMenu()));
+        hamburger?.addEventListener('click', () => (
+            sidebar.classList.contains('open') ? closeMenu() : openMenu()
+        ));
         overlay?.addEventListener('click', closeMenu);
-        window.addEventListener('resize', () => { if (window.innerWidth > 991.98) closeMenu(); });
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 991.98) closeMenu();
+        });
     },
 
     // manejo de navegación sidebar
     setupSidebarNavigation: () => {
-        const contentContainer = Utils.qs('#mainDynamicContent');
+const contentContainer = Utils.qs('#mainDynamicContent');
 
+// 👉 ahora tomamos items del sidebar de escritorio Y del móvil
         const initInjectedPlaylistUI = (container) => {
             const crearBtn = Utils.qs('.btn-crear', container);
             if (crearBtn) {
                 crearBtn.addEventListener('click', async () => {
                     const nombre = prompt("Ingresa el nombre de tu nueva playlist:");
                     if (!nombre || !nombre.trim()) return;
+
                     try {
                         const response = await fetch('/api/playlist/crear', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ nombre })
                         });
+
                         if (!response.ok) throw new Error('No se pudo crear la playlist');
+
                         const nuevaPlaylist = await response.json();
                         Notifier.show(`Playlist "${nuevaPlaylist.nombre}" creada!`, 'success');
                         addPlaylistToCarrusel(nuevaPlaylist);
@@ -262,73 +267,154 @@ const UI = {
                     }
                 });
             }
+
+            // Carrusel de canciones con like
             initLikedSongsCarousel(container);
         };
 
-        const navItems = Array.from(Utils.qsa('.sidebar .nav-item') || []);
+        // Función que se encarga de cargar la sección según el texto del <span>
+        const handleSection = (section) => {
+            if (!contentContainer) {
+                Notifier.show('Contenedor principal no encontrado', 'danger');
+                return;
+            }
+
+            // Normalizamos
+            section = (section || '').toLowerCase();
+
+            // === Premium / Planes ===
+            if (section === 'premium' || section === 'planes') {
+                const usuario = Auth.getUser();
+                if (!usuario) {
+                    AuthPopup.show("premium");
+                    return;
+                }
+                loadView('/premium');
+                return;
+            }
+
+            // === Playlist ===
+            if (section === 'playlist') {
+                const usuario = Auth.getUser();
+                if (!usuario) {
+                    AuthPopup.show("playlist");
+                    return;
+                }
+
+                contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+                contentContainer.style.opacity = 0;
+                contentContainer.style.transform = "translateY(15px)";
+
+                setTimeout(() => {
+                    fetch('/playlist', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(response => response.text())
+                        .then(html => {
+                            contentContainer.innerHTML = html;
+                            contentContainer.style.opacity = 1;
+                            contentContainer.style.transform = "translateY(0)";
+                            history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
+
+                            // IMPORTANTE: volvemos a enganchar todo lo de Playlist
+                            setTimeout(() => {
+                                initInjectedPlaylistUI(contentContainer);
+                                addViewButtonsToExistingPlaylists();
+                                initCarruselScroll();
+                                updateScrollButtons();
+                            }, 250);
+                        })
+                        .catch(error => {
+                            console.error('Error cargando Playlist:', error);
+                            Notifier.show('Error al cargar Playlist', 'danger');
+                        });
+                }, 250);
+                return;
+            }
+
+            // === Inicio ===
+            if (section === 'inicio' || section === 'home') {
+                window.location.href = '/';
+            }
+        };
+
+        // Tomamos items de ambos sidebars: escritorio y móvil
+        const navItems = Array.from(
+            Utils.qsa('.sidebar .nav-item, .sidebar-mobile .nav-item') || []
+        );
+
         navItems.forEach(item => {
             item.addEventListener('click', function (e) {
                 e.preventDefault();
+
+                // Cerrar menú móvil si el click viene de ahí
+                const sidebarMobile = Utils.qs('#sidebarMobile');
+                const overlayMobile = Utils.qs('#mobileOverlay');
+                const hamburger = Utils.qs('#hamburgerMenu');
+
+                if (this.closest('.sidebar-mobile')) {
+                    sidebarMobile?.classList.remove('open');
+                    overlayMobile?.classList.remove('open');
+                    hamburger?.setAttribute('aria-expanded', 'false');
+                    document.body.style.overflow = '';
+                }
+
+                // Marcar activo
                 navItems.forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
 
-                const section = Utils.qs('span', this)?.textContent?.trim().toLowerCase();
+                const section = Utils.qs('span', this)?.textContent?.trim();
+                handleSection(section);
+            
 
-                if (!contentContainer) {
-                    Notifier.show('Contenedor principal no encontrado', 'danger');
-                    return;
-                }
+        // === Premium / Planes ===
+        if (section === 'premium' || section === 'planes') {
+            const usuario = Auth.getUser();
+            if (!usuario) {
+                AuthPopup.show("premium");
+                return;
+            }
+            loadView('/premium');
+            return;
+        }
 
-                if (section === 'premium' || section === 'planes') {
-                    const usuario = Auth.getUser();
-                    
-                    if (!usuario) {
-                        console.log('No hay usuario, mostrando popup')
-                        AuthPopup.show("premium");
-                        return;
-                    }
-                    loadView('/premium');
-                    return;
-                }
+        // === Playlist ===
+        if (section === 'playlist') {
+            const usuario = Auth.getUser();
+            if (!usuario) {
+                AuthPopup.show("playlist");
+                return;
+            }
 
-                if (section === 'playlist') {
-                    const usuario = Auth.getUser();
+            contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+            contentContainer.style.opacity = 0;
+            contentContainer.style.transform = "translateY(15px)";
 
-                    if (!usuario) {
-                        AuthPopup.show("playplist");
-                        return;
-                    }
+            setTimeout(() => {
+                fetch('/playlist', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(response => response.text())
+                    .then(html => {
+                        contentContainer.innerHTML = html;
+                        contentContainer.style.opacity = 1;
+                        contentContainer.style.transform = "translateY(0)";
+                        history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
 
-                    contentContainer.style.transition = "opacity 0.4s ease, transform 0.4s ease";
-                    contentContainer.style.opacity = 0;
-                    contentContainer.style.transform = "translateY(15px)";
+                        setTimeout(() => {
+                            initInjectedPlaylistUI(contentContainer);
+                            addViewButtonsToExistingPlaylists();
+                            initCarruselScroll();
+                            updateScrollButtons();
+                        }, 250);
+                    })
+                    .catch(error => {
+                        console.error('Error cargando Playlist:', error);
+                        Notifier.show('Error al cargar Playlist', 'danger');
+                    });
+            }, 250);
+            return;
+        }
 
-                    setTimeout(() => {
-                        fetch('/playlist', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                            .then(response => response.text())
-                            .then(html => {
-                                contentContainer.innerHTML = html;
-                                contentContainer.style.opacity = 1;
-                                contentContainer.style.transform = "translateY(0)";
-                                history.pushState({ page: 'playlist' }, 'Playlist', '/playlist');
-
-                                setTimeout(() => {
-                                    initInjectedPlaylistUI(contentContainer);
-                                    addViewButtonsToExistingPlaylists();
-                                    initCarruselScroll();
-                                    updateScrollButtons();
-                                }, 250);
-                            })
-                            .catch(error => {
-                                console.error('Error cargando Playlist:', error);
-                                Notifier.show('Error al cargar Playlist', 'danger');
-                            });
-                    }, 250);
-                    return;
-                }
-
-                if (section === 'inicio' || section === 'home') {
-                    window.location.href = '/';
+        // === Inicio ===
+        if (section === 'inicio' || section === 'home') {
+            window.location.href = '/';
                 }
             });
         });
@@ -510,37 +596,48 @@ const Search = {
     },
 
     init: () => {
-        Search.audioPlayer = Utils.qs("#audioPlayerSearch");
-        const searchBtn = Utils.qs("#searchBtn");
-        const searchOverlay = Utils.qs("#overlay");
-        const searchInput = Utils.qs("#searchInput");
+    Search.audioPlayer = Utils.qs("#audioPlayerSearch");
+    const searchOverlay = Utils.qs("#overlay");
+    const searchInput = Utils.qs("#searchInput");
 
+    // 👉 Tomamos ambos botones: sidebar normal y sidebar móvil
+    const searchButtons = [
+        Utils.qs("#searchBtn"),        // botón del sidebar de escritorio
+        Utils.qs("#searchBtnMobile")   // botón del menú hamburguesa
+    ].filter(Boolean); // quita los null
 
-        searchBtn?.addEventListener("click", (e) => {
+    // Abrir overlay al hacer click en cualquiera de los dos
+    searchButtons.forEach(btn => {
+        btn.addEventListener("click", (e) => {
             e.preventDefault();
             searchOverlay?.classList.add("active");
             document.body.classList.add("modal-open");
             setTimeout(() => searchInput?.focus(), 300);
         });
-        searchOverlay?.addEventListener("click", (e) => {
-            if (e.target === searchOverlay) {
-                searchOverlay.classList.remove("active");
-                document.body.classList.remove("modal-open");
-                if (Search.audioPlayer && !Search.audioPlayer.paused) {
-                    Search.audioPlayer.pause();
-                    Search.audioPlayer.currentTime = 0;
-                }
-                Search.currentSong = null;
-            }
-        });
+    });
 
-        searchInput?.addEventListener("input", Search._filterSongs);
-    }
+    // Cerrar overlay al hacer click fuera
+    searchOverlay?.addEventListener("click", (e) => {
+        if (e.target === searchOverlay) {
+            searchOverlay.classList.remove("active");
+            document.body.classList.remove("modal-open");
+            if (Search.audioPlayer && !Search.audioPlayer.paused) {
+                Search.audioPlayer.pause();
+                Search.audioPlayer.currentTime = 0;
+            }
+            Search.currentSong = null;
+        }
+    });
+
+    // Filtrar canciones al escribir
+    searchInput?.addEventListener("input", Search._filterSongs);
+}
+
 };
 
 const verificarSesionExistente = () => {
     const usuario = Auth.getUser();
-    
+
     if (usuario) {
         UI.updateForLoggedInUser(usuario);
     } else {
@@ -606,11 +703,11 @@ async function handleAddSongClick(e) {
     const modalElement = document.getElementById('addToPlaylistModal');
     const modalList = document.getElementById('playlist-modal-list');
     if (!modalElement || !modalList) return Notifier.show('Modal de playlists no disponible', 'danger');
-    
+
     const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
     modalElement.dataset.cancionId = cancionId;
     modalList.innerHTML = '<p>Cargando playlists...</p>';
-    
+
     try {
         const response = await fetch('/api/playlists');
         if (!response.ok) throw new Error('No se pudieron cargar las playlists');
@@ -657,16 +754,16 @@ if (document.getElementById('playlist-modal-list')) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cancionId: parseInt(cancionId), playlistId: parseInt(playlistId) })
         })
-        .then(response => {
-            if (!response.ok) return response.json().then(err => { throw new Error(err.error || 'Error al añadir la canción'); });
-            return response.json();
-        })
-        .then(resultado => {
-            Notifier.show(`"${resultado.cancionTitulo}" añadido a "${resultado.playlistNombre}"!`, 'success');
-        })
-        .catch(error => {
-            Notifier.show(error.message || 'Error al añadir', 'danger');
-        });
+            .then(response => {
+                if (!response.ok) return response.json().then(err => { throw new Error(err.error || 'Error al añadir la canción'); });
+                return response.json();
+            })
+            .then(resultado => {
+                Notifier.show(`"${resultado.cancionTitulo}" añadido a "${resultado.playlistNombre}"!`, 'success');
+            })
+            .catch(error => {
+                Notifier.show(error.message || 'Error al añadir', 'danger');
+            });
     });
 }
 
@@ -687,7 +784,7 @@ document.body.addEventListener('click', handleLikeClick);
 async function showPlaylistSongsModal(playlistId, playlistNombre) {
     const modalEl = document.getElementById('viewPlaylistModal');
     if (!modalEl) return Notifier.show('Modal de visualización no disponible', 'danger');
-    
+
     const modalBody = modalEl.querySelector('.modal-body');
     const modalTitle = modalEl.querySelector('.modal-title');
     modalTitle.textContent = `Playlist: ${playlistNombre}`;
@@ -732,7 +829,7 @@ async function showPlaylistSongsModal(playlistId, playlistNombre) {
 document.body.addEventListener('click', (e) => {
     const btn = e.target.closest('.btn-view-playlist');
     if (!btn) return;
-    
+
     const playlistItem = btn.closest('.carrusel-item');
     const playlistId = btn.dataset.playlistId || playlistItem?.dataset?.playlistId;
     const playlistNombre = playlistItem?.querySelector('.playlist-name')?.textContent || 'Playlist';
@@ -913,18 +1010,18 @@ const AuthPopup = {
         if (this.backdrop) {
             this.backdrop.classList.add('d-none');
         }
-        
+
         document.body.style.overflow = 'auto';
         document.body.style.paddingRight = '';
         document.body.classList.remove('modal-open');
-        
+
         const allBackdrops = document.querySelectorAll('.modal-backdrop, .auth-popup-backdrop');
         allBackdrops.forEach(backdrop => {
             if (backdrop.id !== 'authRequiredPopup') {
                 backdrop.remove();
             }
         });
-        
+
         Utils.qs('#popupPagoContenido')?.classList.add('d-none');
         Utils.qs('#popupDefaultTexto')?.classList.remove('d-none');
         Utils.qs('#popupDefaultButtons')?.classList.remove('d-none');
@@ -939,7 +1036,7 @@ const AuthPopup = {
             e.preventDefault();
             e.stopPropagation();
             this.hide();
-            
+
             setTimeout(() => {
                 const loginModal = new bootstrap.Modal(Utils.qs('#loginModal'));
                 loginModal.show();
@@ -950,7 +1047,7 @@ const AuthPopup = {
             e.preventDefault();
             e.stopPropagation();
             this.hide();
-            
+
             setTimeout(() => {
                 const registroModal = new bootstrap.Modal(Utils.qs('#registroModal'));
                 registroModal.show();
@@ -989,11 +1086,12 @@ const Premium = {
         try {
             const response = await fetch('/api/premium/comprar', {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 credentials: "include",
                 // body: JSON.stringify({ plan, nombreTarjeta, numeroTarjeta, cvv })
-                body: JSON.stringify({ plan: planSeleccionado})
+                body: JSON.stringify({ plan: planSeleccionado })
             });
 
             const data = await response.json();
@@ -1035,7 +1133,7 @@ const PremiumAccess = {
 };
 
 const premiumBtn = Utils.qs('#premiumBtn');
-premiumBtn?.addEventListener('click', function(e) {
+premiumBtn?.addEventListener('click', function (e) {
     e.preventDefault();
     const usuario = Auth.getUser();
     if (!usuario) {
@@ -1089,7 +1187,7 @@ document.addEventListener("click", async (e) => {
         }
 
         popup.classList.remove("d-none");
-        
+
         const titulo = Utils.qs("#authPopupTitle");
         const mensaje = Utils.qs("#authPopupMessage");
         const contenidoPago = Utils.qs("#popupPagoContenido");
@@ -1103,7 +1201,7 @@ document.addEventListener("click", async (e) => {
 
         setTimeout(() => {
             const btnPagar = document.getElementById('btnPagarAhora');
-            
+
             if (btnPagar) {
                 const nuevoBtn = btnPagar.cloneNode(true);
                 btnPagar.parentNode.replaceChild(nuevoBtn, btnPagar);
@@ -1128,10 +1226,10 @@ document.addEventListener("click", async (e) => {
         return;
     }
 
-    if (e.target.id === "btnPagarAhora" || 
+    if (e.target.id === "btnPagarAhora" ||
         e.target.closest("#btnPagarAhora") ||
         (e.target.tagName === 'BUTTON' && e.target.textContent.includes('Pagar ahora'))) {
-        
+
         e.preventDefault();
         e.stopPropagation();
         await procesarPago(popup);
@@ -1154,7 +1252,7 @@ async function procesarPago(popup) {
     if (!plan) {
         console.error("Error: no se detectó el plan seleccionado");
         Notifier.show("Error: no se pudo detectar el plan seleccionado", "danger");
-        
+
         popup.classList.add("d-none");
         Utils.qs("#popupPagoContenido")?.classList.add("d-none");
         Utils.qs("#popupDefaultButtons")?.classList.remove("d-none");
@@ -1175,11 +1273,11 @@ async function procesarPago(popup) {
     try {
         const response = await fetch("/api/premium/comprar", {
             method: "POST",
-            headers: { 
-                "Content-Type": "application/json" 
+            headers: {
+                "Content-Type": "application/json"
             },
             credentials: "include",
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 plan: plan,
                 email: usuario.email
             })
@@ -1310,7 +1408,7 @@ document.addEventListener("click", async (e) => {
         localStorage.setItem("premiumPlan", plan);
 
         // 6. Redirigir al inicio
-        
+
 
     } catch (err) {
         console.error(err);
@@ -1372,13 +1470,13 @@ document.addEventListener("click", async (e) => {
 
 const limpiarBackdrops = () => {
     const bootstrapBackdrops = document.querySelectorAll('.modal-backdrop');
-    bootstrapBackdrops.forEach(backdrop => {backdrop.remove();});
-    
+    bootstrapBackdrops.forEach(backdrop => { backdrop.remove(); });
+
     const authPopup = Utils.qs('#authRequiredPopup');
     if (authPopup && !authPopup.classList.contains('d-none')) {
         authPopup.classList.add('d-none');
     }
-    
+
     document.body.classList.remove('modal-open');
     document.body.style.overflow = 'auto';
     document.body.style.paddingRight = '';
