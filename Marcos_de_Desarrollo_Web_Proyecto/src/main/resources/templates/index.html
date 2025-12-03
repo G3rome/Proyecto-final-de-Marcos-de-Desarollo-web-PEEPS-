@@ -40,31 +40,31 @@
             </div>
         </div>
         <div class="sidebar-mobile-nav">
-    <div class="nav-section">
-        <a href="#" class="nav-item active">
-            <i class="fas fa-home"></i>
-            <span>Inicio</span>
-        </a>
-    </div>
-    <div class="nav-section">
-        <a href="#" class="nav-item search-btn" id="searchBtnMobile">
-            <i class="fas fa-magnifying-glass"></i>
-            <span>Buscar</span>
-        </a>
-    </div>
-    <div class="nav-section">
-        <a href="#" class="nav-item playlist-btn" id="playlistBtnMobile">
-            <i class="fa-solid fa-music"></i>
-            <span>Playlist</span>
-        </a>
-    </div>
-    <div class="nav-section">
-        <a href="#" class="nav-item premium-btn" id="premiumBtnMobile">
-            <i class="fa-solid fa-star"></i>
-            <span>Planes</span>
-        </a>
-    </div>
-</div>
+            <div class="nav-section">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Inicio</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <a href="#" class="nav-item search-btn" id="searchBtnMobile">
+                    <i class="fas fa-magnifying-glass"></i>
+                    <span>Buscar</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <a href="#" class="nav-item playlist-btn" id="playlistBtnMobile">
+                    <i class="fa-solid fa-music"></i>
+                    <span>Playlist</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <a href="#" class="nav-item premium-btn" id="premiumBtnMobile">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Planes</span>
+                </a>
+            </div>
+        </div>
     </nav>
 
     <nav class="sidebar">
@@ -122,6 +122,9 @@
 
     <main id="mainDynamicContent" class="main-content">
         <header class="top-header">
+            <!-- Correccion de posiciones de las secciones: "Premium" & "Desuscribirse" -->
+            <div id="premiumStatusBar"></div>
+
             <div class="header-right" id="headerAuthButtons">
                 <button class="btn-custom-outline" data-bs-toggle="modal" data-bs-target="#loginModal">
                     <i class="fas fa-user"></i> Iniciar Sesión
@@ -406,7 +409,7 @@
         </div>
     </div>
 
-    <div id="premiumStatusBar"></div>
+    <!-- <div id="premiumStatusBar"></div> -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/main.js"></script>
